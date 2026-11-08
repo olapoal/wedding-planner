@@ -880,12 +880,12 @@
         <div style="display: grid; grid-template-columns: 1fr 1.2fr auto; gap: 12px; align-items: flex-end;">
           <div class="form-group" style="margin-bottom: 0;">
             <label class="form-label">Supabase Project URL *</label>
-            <input type="url" id="supaUrlInput" class="input-field" placeholder="https://xxxxxxxx.supabase.co" required>
+            <input type="url" id="supaUrlInput" class="input-field" value="https://condofsgwrwhywqhbglb.supabase.co" required>
           </div>
 
           <div class="form-group" style="margin-bottom: 0;">
             <label class="form-label">Publishable API Key (Anon Key)</label>
-            <input type="text" id="supaKeyInput" class="input-field" value="sb_publishable_VkicMjgvFdj1dp4zIQV4nw_FzBYiWpT" required>
+            <input type="text" id="supaKeyInput" class="input-field" value="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNvbmRvZnNnd3J3aHl3cWhiZ2xiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTQxMDUxNjIsImV4cCI6MjEwOTY4MTE2Mn0.A0EdfHT8JwmosMiqYJsXAAF8CFL3sWE3UpAMrozsp50" required>
           </div>
 
           <button type="submit" id="btnSaveSupabase" class="btn-primary" style="height: 44px; padding: 0 20px; width: auto; white-space: nowrap; background: #059669; border-color: #10B981;">
@@ -1109,26 +1109,25 @@
     // SUPABASE DIRECT CLIENT INTEGRATION
     // =========================================================================
     function getSupabaseAdminConfig() {
-      const url = (localStorage.getItem('wp_supabase_url') || '').trim().replace(/\/$/, '');
-      const key = (localStorage.getItem('wp_supabase_key') || 'sb_publishable_VkicMjgvFdj1dp4zIQV4nw_FzBYiWpT').trim();
+      const url = (localStorage.getItem('wp_supabase_url') || 'https://condofsgwrwhywqhbglb.supabase.co').trim().replace(/\/$/, '');
+      const key = (localStorage.getItem('wp_supabase_key') || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNvbmRvZnNnd3J3aHl3cWhiZ2xiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTQxMDUxNjIsImV4cCI6MjEwOTY4MTE2Mn0.A0EdfHT8JwmosMiqYJsXAAF8CFL3sWE3UpAMrozsp50').trim();
       return { url, key, isReady: Boolean(url && key) };
     }
 
     function initSupabaseConfigUI() {
-      const savedUrl = localStorage.getItem('wp_supabase_url') || '';
-      const savedKey = localStorage.getItem('wp_supabase_key') || 'sb_publishable_VkicMjgvFdj1dp4zIQV4nw_FzBYiWpT';
+      const defaultUrl = 'https://condofsgwrwhywqhbglb.supabase.co';
+      const defaultKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNvbmRvZnNnd3J3aHl3cWhiZ2xiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTQxMDUxNjIsImV4cCI6MjEwOTY4MTE2Mn0.A0EdfHT8JwmosMiqYJsXAAF8CFL3sWE3UpAMrozsp50';
+
+      const savedUrl = localStorage.getItem('wp_supabase_url') || defaultUrl;
+      const savedKey = localStorage.getItem('wp_supabase_key') || defaultKey;
 
       const urlInput = document.getElementById('supaUrlInput');
       const keyInput = document.getElementById('supaKeyInput');
 
-      if (urlInput && savedUrl) urlInput.value = savedUrl;
+      if (urlInput) urlInput.value = savedUrl;
       if (keyInput) keyInput.value = savedKey;
 
-      if (savedUrl) {
-        testSupabaseConnection(savedUrl, savedKey, false);
-      } else {
-        updateSupabaseBadge('need_url', 'Perlu Project URL');
-      }
+      testSupabaseConnection(savedUrl, savedKey, false);
     }
 
     function updateSupabaseBadge(status, text) {

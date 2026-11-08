@@ -243,8 +243,8 @@ class AuthManager {
   // =========================================================================
 
   getSupabaseConfig() {
-    const url = (localStorage.getItem("wp_supabase_url") || this.settings.supabaseUrl || "").trim().replace(/\/$/, "");
-    const key = (localStorage.getItem("wp_supabase_key") || this.settings.supabaseKey || "sb_publishable_VkicMjgvFdj1dp4zIQV4nw_FzBYiWpT").trim();
+    const url = (localStorage.getItem("wp_supabase_url") || this.settings.supabaseUrl || "https://condofsgwrwhywqhbglb.supabase.co").trim().replace(/\/$/, "");
+    const key = (localStorage.getItem("wp_supabase_key") || this.settings.supabaseKey || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNvbmRvZnNnd3J3aHl3cWhiZ2xiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTQxMDUxNjIsImV4cCI6MjEwOTY4MTE2Mn0.A0EdfHT8JwmosMiqYJsXAAF8CFL3sWE3UpAMrozsp50").trim();
     return { url, key, isReady: Boolean(url && key) };
   }
 

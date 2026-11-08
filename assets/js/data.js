@@ -776,6 +776,6 @@ const DEFAULT_SETTINGS = {
   accessMode: "whitelist", // "whitelist", "any_email", "license_key"
   masterLicenseCode: "NIKAH2026",
   adminPin: "1234",
-  supabaseUrl: localStorage.getItem("wp_supabase_url") || "",
-  supabaseKey: localStorage.getItem("wp_supabase_key") || "sb_publishable_VkicMjgvFdj1dp4zIQV4nw_FzBYiWpT"
+  supabaseUrl: localStorage.getItem("wp_supabase_url") || "https://condofsgwrwhywqhbglb.supabase.co",
+  supabaseKey: localStorage.getItem("wp_supabase_key") || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNvbmRvZnNnd3J3aHl3cWhiZ2xiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTQxMDUxNjIsImV4cCI6MjEwOTY4MTE2Mn0.A0EdfHT8JwmosMiqYJsXAAF8CFL3sWE3UpAMrozsp50"
 };
