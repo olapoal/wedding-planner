@@ -775,5 +775,7 @@ const DEFAULT_SETTINGS = {
   lynkidProductUrl: "https://lynk.id/weddingplanner/nikah-impian",
   accessMode: "whitelist", // "whitelist", "any_email", "license_key"
   masterLicenseCode: "NIKAH2026",
-  adminPin: "1234"
+  adminPin: "1234",
+  supabaseUrl: localStorage.getItem("wp_supabase_url") || "",
+  supabaseKey: localStorage.getItem("wp_supabase_key") || "sb_publishable_VkicMjgvFdj1dp4zIQV4nw_FzBYiWpT"
 };

@@ -858,6 +858,45 @@
       </div>
     </div>
 
+    <!-- Card: Koneksi Langsung Supabase Cloud Database (Tanpa Perlu Netlify) -->
+    <div class="card" style="border-color: rgba(16, 185, 129, 0.4); background: linear-gradient(180deg, rgba(6, 78, 59, 0.25) 0%, rgba(15, 23, 42, 0.95) 100%);">
+      <div class="card-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+        <div>
+          <h3 class="card-title" style="color: #34D399;"><i class="fa-solid fa-database text-emerald-400"></i> Database Supabase Cloud (Langsung / Client-Side)</h3>
+          <span style="font-size: 12px; color: var(--text-muted);">
+            Hubungkan aplikasi langsung ke database Supabase Cloud PostgreSQL Anda tanpa bergantung ke Netlify
+          </span>
+        </div>
+        <div id="supabaseStatusBadge" class="badge-status" style="background: rgba(245, 158, 11, 0.15); border: 1px solid rgba(245, 158, 11, 0.4); color: #FCD34D;">
+          <i class="fa-solid fa-circle-notch fa-spin text-[10px]"></i> Menunggu URL Project
+        </div>
+      </div>
+
+      <div style="font-size: 12px; color: #CBD5E1; margin-bottom: 14px; line-height: 1.6;">
+        Kunci API Publishable Supabase Anda sudah terpasang otomatis. Cukup masukkan <strong>Project URL</strong> Supabase Anda (bisa disalin dari <em>Supabase Dashboard &rarr; Project Settings &rarr; API &rarr; Project URL</em>):
+      </div>
+
+      <form id="supabaseConfigForm" onsubmit="event.preventDefault(); simpanKonfigurasiSupabase();">
+        <div style="display: grid; grid-template-columns: 1fr 1.2fr auto; gap: 12px; align-items: flex-end;">
+          <div class="form-group" style="margin-bottom: 0;">
+            <label class="form-label">Supabase Project URL *</label>
+            <input type="url" id="supaUrlInput" class="input-field" placeholder="https://xxxxxxxx.supabase.co" required>
+          </div>
+
+          <div class="form-group" style="margin-bottom: 0;">
+            <label class="form-label">Publishable API Key (Anon Key)</label>
+            <input type="text" id="supaKeyInput" class="input-field" value="sb_publishable_VkicMjgvFdj1dp4zIQV4nw_FzBYiWpT" required>
+          </div>
+
+          <button type="submit" id="btnSaveSupabase" class="btn-primary" style="height: 44px; padding: 0 20px; width: auto; white-space: nowrap; background: #059669; border-color: #10B981;">
+            <span><i class="fa-solid fa-bolt"></i></span>
+            <span>Hubungkan Database</span>
+          </button>
+        </div>
+      </form>
+      <div id="supaTestNotice" style="font-size: 12px; margin-top: 10px; color: #94A3B8;"></div>
+    </div>
+
     <!-- Card 5: Ganti Password Admin & Pengaturan Toko -->
     <div class="card" style="border-color: rgba(244, 63, 94, 0.35); background: linear-gradient(180deg, rgba(30, 41, 59, 0.7) 0%, rgba(17, 24, 39, 0.95) 100%);">
       <div class="card-header">
@@ -1063,6 +1102,114 @@
       document.getElementById('viewDashboard').style.display = 'block';
       document.getElementById('btnLogoutAdmin').style.display = 'inline-flex';
       updateWebhookUrlDisplay();
+      initSupabaseConfigUI();
+    }
+
+    // =========================================================================
+    // SUPABASE DIRECT CLIENT INTEGRATION
+    // =========================================================================
+    function getSupabaseAdminConfig() {
+      const url = (localStorage.getItem('wp_supabase_url') || '').trim().replace(/\/$/, '');
+      const key = (localStorage.getItem('wp_supabase_key') || 'sb_publishable_VkicMjgvFdj1dp4zIQV4nw_FzBYiWpT').trim();
+      return { url, key, isReady: Boolean(url && key) };
+    }
+
+    function initSupabaseConfigUI() {
+      const savedUrl = localStorage.getItem('wp_supabase_url') || '';
+      const savedKey = localStorage.getItem('wp_supabase_key') || 'sb_publishable_VkicMjgvFdj1dp4zIQV4nw_FzBYiWpT';
+
+      const urlInput = document.getElementById('supaUrlInput');
+      const keyInput = document.getElementById('supaKeyInput');
+
+      if (urlInput && savedUrl) urlInput.value = savedUrl;
+      if (keyInput) keyInput.value = savedKey;
+
+      if (savedUrl) {
+        testSupabaseConnection(savedUrl, savedKey, false);
+      } else {
+        updateSupabaseBadge('need_url', 'Perlu Project URL');
+      }
+    }
+
+    function updateSupabaseBadge(status, text) {
+      const badge = document.getElementById('supabaseStatusBadge');
+      if (!badge) return;
+      if (status === 'connected') {
+        badge.style.background = 'rgba(16, 185, 129, 0.2)';
+        badge.style.borderColor = 'rgba(16, 185, 129, 0.5)';
+        badge.style.color = '#34D399';
+        badge.innerHTML = '<i class="fa-solid fa-circle-check text-[10px]"></i> ' + text;
+      } else if (status === 'checking') {
+        badge.style.background = 'rgba(56, 189, 248, 0.2)';
+        badge.style.borderColor = 'rgba(56, 189, 248, 0.5)';
+        badge.style.color = '#38BDF8';
+        badge.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin text-[10px]"></i> ' + text;
+      } else if (status === 'need_url') {
+        badge.style.background = 'rgba(245, 158, 11, 0.15)';
+        badge.style.borderColor = 'rgba(245, 158, 11, 0.4)';
+        badge.style.color = '#FCD34D';
+        badge.innerHTML = '<i class="fa-solid fa-circle-exclamation text-[10px]"></i> ' + text;
+      } else {
+        badge.style.background = 'rgba(239, 68, 68, 0.2)';
+        badge.style.borderColor = 'rgba(239, 68, 68, 0.5)';
+        badge.style.color = '#F87171';
+        badge.innerHTML = '<i class="fa-solid fa-circle-xmark text-[10px]"></i> ' + text;
+      }
+    }
+
+    async function testSupabaseConnection(url, key, isUserTriggered = true) {
+      const cleanUrl = (url || '').trim().replace(/\/$/, '');
+      const cleanKey = (key || '').trim();
+      const notice = document.getElementById('supaTestNotice');
+
+      if (!cleanUrl) {
+        updateSupabaseBadge('need_url', 'Perlu Project URL');
+        if (notice) notice.innerHTML = '<span style="color: #F87171;">⚠️ Silakan masukkan Project URL Supabase Anda terlebih dahulu.</span>';
+        return false;
+      }
+
+      updateSupabaseBadge('checking', 'Memeriksa...');
+      try {
+        const res = await fetch(`${cleanUrl}/rest/v1/wedding_buyers?select=email,name,order_id&limit=1`, {
+          headers: {
+            'apikey': cleanKey,
+            'Authorization': `Bearer ${cleanKey}`
+          }
+        });
+
+        if (res.ok) {
+          updateSupabaseBadge('connected', 'Terhubung ke Supabase');
+          if (notice) notice.innerHTML = '<span style="color: #34D399;">✅ Berhasil terhubung ke Supabase Cloud! Data lisensi pembeli kini tersinkronisasi langsung ke database.</span>';
+          if (isUserTriggered) showToast('Database Supabase Berhasil Terhubung!');
+          return true;
+        } else {
+          updateSupabaseBadge('error', 'Gagal (' + res.status + ')');
+          if (notice) notice.innerHTML = `<span style="color: #F87171;">❌ Gagal terhubung (Status: ${res.status}). Pastikan skema SQL sudah dijalankan di Supabase.</span>`;
+          return false;
+        }
+      } catch (err) {
+        updateSupabaseBadge('error', 'Koneksi Gagal');
+        if (notice) notice.innerHTML = `<span style="color: #F87171;">❌ Error: ${err.message}. Periksa URL atau koneksi internet.</span>`;
+        return false;
+      }
+    }
+
+    async function simpanKonfigurasiSupabase() {
+      const url = (document.getElementById('supaUrlInput').value || '').trim();
+      const key = (document.getElementById('supaKeyInput').value || '').trim();
+
+      if (!url) {
+        alert('Harap masukkan Supabase Project URL!');
+        return;
+      }
+
+      localStorage.setItem('wp_supabase_url', url);
+      localStorage.setItem('wp_supabase_key', key);
+
+      const ok = await testSupabaseConnection(url, key, true);
+      if (ok) {
+        muatDataPembeli();
+      }
     }
 
     // LOAD BUYERS DATA
@@ -1071,41 +1218,66 @@
       const tbody = document.getElementById('buyersTableBody');
       tbody.innerHTML = '<tr><td colspan="7" class="empty-state"><span class="spinner"></span> Mengambil data terbaru...</td></tr>';
 
-      const isLocal = window.location.protocol === 'file:' || window.location.hostname === 'localhost';
+      const supa = getSupabaseAdminConfig();
 
       try {
         let buyers = [];
 
-        if (isLocal) {
-          const storedWhitelist = localStorage.getItem(STORAGE_KEY_WHITELIST);
-          let rawList = [];
-          if (storedWhitelist) {
-            try { rawList = JSON.parse(storedWhitelist); } catch(e) { rawList = []; }
-          }
-          if (!rawList.includes('olapoal.artgallery@gmail.com')) {
-            rawList.unshift('olapoal.artgallery@gmail.com');
-            localStorage.setItem(STORAGE_KEY_WHITELIST, JSON.stringify(rawList));
-          }
-          buyers = rawList.map((item, idx) => {
-            if (typeof item === 'string') {
-              const name = item === 'olapoal.artgallery@gmail.com' ? 'Ola Poal (Owner VIP)' : (item === 'angga.chintya@gmail.com' ? 'Anggah & Chintya' : 'Pembeli VIP');
-              const orderId = item === 'olapoal.artgallery@gmail.com' ? 'OWNER-LIFETIME' : ('LOCAL-' + (idx + 1));
-              return { email: item, name: name, order_id: orderId, created_at: new Date().toISOString() };
+        // 1. Coba baca dari Supabase Cloud langsung jika URL telah diisi
+        if (supa.isReady) {
+          try {
+            const supaRes = await fetch(`${supa.url}/rest/v1/wedding_buyers?select=*&order=created_at.desc`, {
+              headers: {
+                'apikey': supa.key,
+                'Authorization': `Bearer ${supa.key}`
+              }
+            });
+            if (supaRes.ok) {
+              const rows = await supaRes.json();
+              if (rows && Array.isArray(rows) && rows.length > 0) {
+                buyers = rows;
+              }
             }
-            return item;
-          });
-        } else {
-          const res = await fetch('/.netlify/functions/admin-buyers', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'x-admin-key': token
-            },
-            body: JSON.stringify({ action: 'list' })
-          });
-          const data = await res.json();
-          if (res.ok && data.buyers) {
-            buyers = data.buyers;
+          } catch (e) {
+            console.warn('Supabase fetch notice:', e.message);
+          }
+        }
+
+        // 2. Jika Supabase kosong / belum diset, baca dari Netlify Functions atau Whitelist lokal
+        if (buyers.length === 0) {
+          const isLocal = window.location.protocol === 'file:' || window.location.hostname === 'localhost';
+
+          if (isLocal) {
+            const storedWhitelist = localStorage.getItem(STORAGE_KEY_WHITELIST);
+            let rawList = [];
+            if (storedWhitelist) {
+              try { rawList = JSON.parse(storedWhitelist); } catch(e) { rawList = []; }
+            }
+            if (!rawList.includes('olapoal.artgallery@gmail.com')) {
+              rawList.unshift('olapoal.artgallery@gmail.com');
+              localStorage.setItem(STORAGE_KEY_WHITELIST, JSON.stringify(rawList));
+            }
+            buyers = rawList.map((item, idx) => {
+              if (typeof item === 'string') {
+                const name = item === 'olapoal.artgallery@gmail.com' ? 'Ola Poal (Owner VIP)' : (item === 'angga.chintya@gmail.com' ? 'Anggah & Chintya' : 'Pembeli VIP');
+                const orderId = item === 'olapoal.artgallery@gmail.com' ? 'OWNER-LIFETIME' : ('LOCAL-' + (idx + 1));
+                return { email: item, name: name, order_id: orderId, created_at: new Date().toISOString() };
+              }
+              return item;
+            });
+          } else {
+            const res = await fetch('/.netlify/functions/admin-buyers', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'x-admin-key': token
+              },
+              body: JSON.stringify({ action: 'list' })
+            });
+            const data = await res.json();
+            if (res.ok && data.buyers) {
+              buyers = data.buyers;
+            }
           }
         }
 
@@ -1180,6 +1352,30 @@
       if (!email) return;
 
       try {
+        // Simpan langsung ke Supabase jika aktif
+        const supa = getSupabaseAdminConfig();
+        if (supa.isReady) {
+          try {
+            await fetch(`${supa.url}/rest/v1/wedding_buyers`, {
+              method: 'POST',
+              headers: {
+                'apikey': supa.key,
+                'Authorization': `Bearer ${supa.key}`,
+                'Content-Type': 'application/json',
+                'Prefer': 'resolution=merge-duplicates'
+              },
+              body: JSON.stringify({
+                email: email.toLowerCase(),
+                name: name || 'Pembeli Manual',
+                order_id: notes || 'MANUAL-VIP',
+                status: 'active'
+              })
+            });
+          } catch (supaErr) {
+            console.warn('Supabase add error notice:', supaErr.message);
+          }
+        }
+
         if (isLocal) {
           const raw = localStorage.getItem(STORAGE_KEY_WHITELIST);
           let list = raw ? JSON.parse(raw) : [];
@@ -1189,7 +1385,7 @@
           }
           allBuyersData.unshift({
             email: email.toLowerCase(),
-            name: name || 'Manual Add',
+            name: name || 'Pembeli Manual',
             order_id: notes || 'MANUAL-VIP',
             created_at: new Date().toISOString()
           });
@@ -1237,6 +1433,28 @@
       const token = getSavedAdminToken();
 
       try {
+        const supa = getSupabaseAdminConfig();
+        if (supa.isReady) {
+          try {
+            const records = emails.map(e => ({
+              email: e.toLowerCase(),
+              name: 'Import Pembeli',
+              order_id: 'BULK-IMPORT',
+              status: 'active'
+            }));
+            await fetch(`${supa.url}/rest/v1/wedding_buyers`, {
+              method: 'POST',
+              headers: {
+                'apikey': supa.key,
+                'Authorization': `Bearer ${supa.key}`,
+                'Content-Type': 'application/json',
+                'Prefer': 'resolution=merge-duplicates'
+              },
+              body: JSON.stringify(records)
+            });
+          } catch (e) {}
+        }
+
         if (isLocal) {
           const raw = localStorage.getItem(STORAGE_KEY_WHITELIST);
           let list = raw ? JSON.parse(raw) : [];
@@ -1273,6 +1491,19 @@
       const token = getSavedAdminToken();
 
       try {
+        const supa = getSupabaseAdminConfig();
+        if (supa.isReady) {
+          try {
+            await fetch(`${supa.url}/rest/v1/wedding_buyers?email=eq.${encodeURIComponent(email)}`, {
+              method: 'DELETE',
+              headers: {
+                'apikey': supa.key,
+                'Authorization': `Bearer ${supa.key}`
+              }
+            });
+          } catch (e) {}
+        }
+
         if (isLocal) {
           const raw = localStorage.getItem(STORAGE_KEY_WHITELIST);
           let list = raw ? JSON.parse(raw) : [];

@@ -80,6 +80,13 @@ FOR UPDATE
 TO anon, authenticated 
 USING (true);
 
+DROP POLICY IF EXISTS "Allow anon delete buyers" ON public.wedding_buyers;
+CREATE POLICY "Allow anon delete buyers" 
+ON public.wedding_buyers 
+FOR DELETE 
+TO anon, authenticated 
+USING (true);
+
 -- Kebijakan RLS untuk wedding_demo_sessions:
 -- Izinkan anon untuk membaca, memulai dan memperbarui sisa waktu demo
 DROP POLICY IF EXISTS "Allow anon manage demo sessions" ON public.wedding_demo_sessions;

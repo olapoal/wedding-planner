@@ -239,6 +239,87 @@ class AuthManager {
   }
 
   // =========================================================================
+  // SUPABASE DIRECT CLIENT INTEGRATION (Client-Side Direct - Tanpa Netlify)
+  // =========================================================================
+
+  getSupabaseConfig() {
+    const url = (localStorage.getItem("wp_supabase_url") || this.settings.supabaseUrl || "").trim().replace(/\/$/, "");
+    const key = (localStorage.getItem("wp_supabase_key") || this.settings.supabaseKey || "sb_publishable_VkicMjgvFdj1dp4zIQV4nw_FzBYiWpT").trim();
+    return { url, key, isReady: Boolean(url && key) };
+  }
+
+  async syncSupabaseDemo(action, remSeconds) {
+    const cfg = this.getSupabaseConfig();
+    if (!cfg.isReady) return null;
+    try {
+      const now = new Date().toISOString();
+      if (action === "check" || action === "start") {
+        const res = await fetch(`${cfg.url}/rest/v1/wedding_demo_sessions?fingerprint=eq.${encodeURIComponent(this.fingerprint)}&limit=1`, {
+          headers: {
+            "apikey": cfg.key,
+            "Authorization": `Bearer ${cfg.key}`
+          }
+        });
+        if (res.ok) {
+          const rows = await res.json();
+          if (rows && rows.length > 0) return rows[0];
+        }
+      }
+
+      if (action === "start") {
+        await fetch(`${cfg.url}/rest/v1/wedding_demo_sessions`, {
+          method: "POST",
+          headers: {
+            "apikey": cfg.key,
+            "Authorization": `Bearer ${cfg.key}`,
+            "Content-Type": "application/json",
+            "Prefer": "resolution=merge-duplicates"
+          },
+          body: JSON.stringify({
+            fingerprint: this.fingerprint,
+            client_ip: "browser-client",
+            remaining_seconds: remSeconds,
+            expired: false,
+            started_at: now,
+            last_active_at: now
+          })
+        });
+      } else if (action === "pause" || action === "update") {
+        await fetch(`${cfg.url}/rest/v1/wedding_demo_sessions?fingerprint=eq.${encodeURIComponent(this.fingerprint)}`, {
+          method: "PATCH",
+          headers: {
+            "apikey": cfg.key,
+            "Authorization": `Bearer ${cfg.key}`,
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            remaining_seconds: remSeconds,
+            expired: remSeconds <= 0,
+            last_active_at: now
+          })
+        });
+      } else if (action === "expire") {
+        await fetch(`${cfg.url}/rest/v1/wedding_demo_sessions?fingerprint=eq.${encodeURIComponent(this.fingerprint)}`, {
+          method: "PATCH",
+          headers: {
+            "apikey": cfg.key,
+            "Authorization": `Bearer ${cfg.key}`,
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            remaining_seconds: 0,
+            expired: true,
+            last_active_at: now
+          })
+        });
+      }
+    } catch (e) {
+      console.warn("Direct Supabase demo sync notice:", e.message);
+    }
+    return null;
+  }
+
+  // =========================================================================
   // DEMO TIMER & ANTI-ABUSE ENGINE (2 MENIT / 120 DETIK)
   // =========================================================================
 
@@ -290,6 +371,7 @@ class AuthManager {
     saveIndexedDBLock("demo_expired", true);
     saveIndexedDBLock("demo_remaining", 0);
     saveIndexedDBLock("demo_fp_" + this.fingerprint, true);
+    this.syncSupabaseDemo("expire", 0);
 
     if (this.currentUser && this.currentUser.role === "demo") {
       this.currentUser = null;
@@ -317,7 +399,22 @@ class AuthManager {
       };
     }
 
-    // 2. Cek ke backend Netlify Functions (jika online/terdeploy) untuk IP & Fingerprint check
+    // 2. Cek ke Supabase Cloud langsung (Client-Side Direct - Tanpa Perlu Netlify)
+    try {
+      const supaDemo = await this.syncSupabaseDemo("start", currentRem);
+      if (supaDemo) {
+        if (supaDemo.expired || (supaDemo.remaining_seconds !== undefined && supaDemo.remaining_seconds <= 0)) {
+          this.markDemoExpiredLocally();
+          return {
+            success: false,
+            expired: true,
+            message: "Masa uji coba demo 2 menit untuk perangkat ini telah habis di Supabase. Silakan beli lisensi di Lynk.id!"
+          };
+        }
+      }
+    } catch (e) {}
+
+    // 3. Cek ke backend Netlify Functions (jika online/terdeploy) untuk IP & Fingerprint check
     try {
       const res = await fetch("/.netlify/functions/demo-session", {
         method: "POST",
@@ -344,7 +441,7 @@ class AuthManager {
       // Fallback lokal jika offline / di localhost
     }
 
-    // 3. Pastikan remaining seconds tersimpan
+    // 4. Pastikan remaining seconds tersimpan
     this.updateDemoRemainingSeconds(currentRem);
 
     this.currentUser = {
@@ -384,7 +481,42 @@ class AuthManager {
       return { success: false, message: "Format alamat email tidak valid. Pastikan penulisan benar." };
     }
 
-    // 1. Verifikasi online via Netlify Serverless Function jika tersedia
+    // 1. Verifikasi langsung ke Supabase Cloud Database (Client-Side Direct - Tanpa Netlify)
+    const supaCfg = this.getSupabaseConfig();
+    if (supaCfg.isReady) {
+      try {
+        const res = await fetch(`${supaCfg.url}/rest/v1/wedding_buyers?email=ilike.${encodeURIComponent(cleanEmail)}&select=email,name,order_id,status`, {
+          headers: {
+            "apikey": supaCfg.key,
+            "Authorization": `Bearer ${supaCfg.key}`
+          }
+        });
+
+        if (res.ok) {
+          const rows = await res.json();
+          if (rows && rows.length > 0) {
+            const buyer = rows[0];
+            if (buyer.status === 'revoked') {
+              return { success: false, message: "Akses lisensi untuk email ini telah dinonaktifkan." };
+            }
+            this.addEmail(cleanEmail);
+            this.currentUser = {
+              email: buyer.email,
+              name: buyer.name || buyer.email,
+              role: "buyer",
+              orderId: buyer.order_id || "-",
+              loginAt: new Date().toISOString()
+            };
+            localStorage.setItem(STORAGE_KEY_AUTH, JSON.stringify(this.currentUser));
+            return { success: true, message: `Selamat datang! Email ${cleanEmail} terverifikasi aktif di Supabase Database.` };
+          }
+        }
+      } catch (supaErr) {
+        console.warn("Supabase direct buyer check notice:", supaErr.message);
+      }
+    }
+
+    // 2. Verifikasi online via Netlify Serverless Function jika tersedia
     try {
       const verifyRes = await fetch("/.netlify/functions/verify-email", {
         method: "POST",
