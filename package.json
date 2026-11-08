@@ -1,0 +1,12 @@
+{
+  "name": "wedding-planner-pro",
+  "version": "1.0.0",
+  "description": "Wedding Planner Pro — Aplikasi Perencana Pernikahan Impian Terintegrasi Lynk.id",
+  "main": "index.html",
+  "scripts": {
+    "build": "echo 'Build OK'"
+  },
+  "dependencies": {
+    "@netlify/blobs": "^8.1.0"
+  }
+}

@@ -1,0 +1,1821 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>💍 Wedding Planner Pro - Aplikasi Perencana Pernikahan Impian</title>
+  
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="Glossy Wedding Calendar Icon.png">
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Cinzel:wght@500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- FontAwesome 6 -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- Tailwind CSS 3 CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            gold: {
+              50: '#FAF4E6',
+              100: '#F5E8CC',
+              500: '#D4AF37',
+              600: '#C59B27',
+              700: '#8F6B12',
+            },
+            roseGold: {
+              50: '#FDF0F0',
+              100: '#FBE2E2',
+              500: '#D98880',
+              600: '#C06C84',
+            },
+            warmLinen: '#FAF7F2',
+          },
+          fontFamily: {
+            serif: ['Playfair Display', 'serif'],
+            sans: ['Plus Jakarta Sans', 'sans-serif'],
+            accent: ['Cinzel', 'serif']
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Canvas Confetti -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+  <!-- Custom Stylesheet -->
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body class="bg-[#FAF7F2] text-stone-800 antialiased min-h-screen flex flex-col">
+
+  <!-- DEMO PREVIEW ALERT BANNER (Only visible in Demo Mode) -->
+  <div id="demoBanner" class="hidden bg-gradient-to-r from-amber-600 via-rose-600 to-amber-700 text-white px-4 py-2.5 text-center text-xs sm:text-sm font-medium shadow-lg sticky top-0 z-50 transition-all duration-300">
+    <div class="flex items-center justify-between max-w-7xl mx-auto flex-wrap gap-2">
+      <div class="flex items-center gap-2.5">
+        <span class="inline-flex items-center gap-1.5 bg-black/30 backdrop-blur-md px-3 py-1 rounded-full text-xs font-mono font-bold tracking-wider border border-white/20 shadow-inner">
+          <i class="fa-solid fa-hourglass-half text-amber-300 animate-spin" style="animation-duration: 4s;"></i>
+          <span>SISA DEMO:</span>
+          <span id="demoTimerCountdown" class="text-amber-200 font-extrabold text-sm tracking-normal">02:00</span>
+        </span>
+        <span class="hidden md:inline text-white/95 text-xs sm:text-sm">
+          Anda sedang mencoba <strong>Preview Demo 2 Menit</strong>. Miliki lisensi penuh untuk simpan data permanen!
+        </span>
+      </div>
+      <div class="flex items-center gap-2 ml-auto">
+        <a id="demoBannerBuyBtn" href="https://lynk.id/weddingplanner/nikah-impian" target="_blank" class="bg-white text-rose-700 hover:bg-rose-50 px-3.5 py-1 rounded-full font-bold text-xs transition shadow-md flex items-center gap-1.5">
+          <span>Beli di Lynk.id Sekarang</span>
+          <i class="fa-solid fa-arrow-right text-[10px]"></i>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOP HEADER NAVBAR -->
+  <header class="top-header sticky top-0 z-40 px-4 sm:px-8 py-3.5 flex items-center justify-between border-b border-[#EFE7DA]">
+    <div class="flex items-center gap-3">
+      <!-- Mobile Menu Toggle -->
+      <button id="mobileMenuBtn" class="lg:hidden p-2 rounded-lg text-stone-600 hover:bg-stone-100">
+        <i class="fa-solid fa-bars text-lg"></i>
+      </button>
+
+      <!-- App Logo & Branding -->
+      <div class="flex items-center gap-3 cursor-pointer" onclick="app.switchTab('dashboard')">
+        <img src="Glossy Wedding Calendar Icon.png" alt="Wedding Planner Logo" class="w-10 h-10 object-contain drop-shadow" onerror="this.onerror=null; this.parentElement.innerHTML='<div class=\'w-10 h-10 rounded-xl bg-gradient-to-br from-amber-400 via-amber-500 to-amber-700 text-white flex items-center justify-center shadow-md\'><i class=\'fa-solid fa-ring text-xl\'></i></div>'">
+        <div>
+          <span class="text-xs uppercase tracking-widest font-semibold text-amber-700 block">Wedding Planner Pro</span>
+          <h1 class="font-serif font-bold text-lg text-stone-900 leading-tight">Perencana Pernikahan Impian</h1>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Header Badges & Actions -->
+    <div class="flex items-center gap-3">
+      <!-- Couple Profile Indicator -->
+      <div class="hidden md:flex items-center gap-2.5 bg-gradient-to-r from-rose-50 to-pink-50 border border-rose-200 px-4 py-1.5 rounded-full cursor-pointer hover:border-rose-400 hover:shadow-md transition" onclick="app.openEditProfileModal()" title="Klik untuk ubah nama pasangan, tanggal & lokasi">
+        <span class="heart-beat"><i class="fa-solid fa-heart"></i></span>
+        <span id="navCoupleLabel" class="font-serif font-bold text-sm text-rose-700">Anggah & Chintya</span>
+        <i class="fa-solid fa-pen text-[10px] text-rose-500 ml-1"></i>
+      </div>
+
+      <!-- Demo Countdown Pill in Header Navbar -->
+      <div id="headerDemoCountdownPill" class="hidden items-center gap-2 bg-gradient-to-r from-rose-600 via-pink-600 to-amber-500 text-white px-3.5 py-1.5 rounded-full shadow-md text-xs font-bold font-mono tracking-wider animate-pulse">
+        <i class="fa-solid fa-hourglass-half text-amber-200"></i>
+        <span>Sisa Demo: <span id="headerDemoCountdown" class="text-amber-100 font-extrabold text-xs">02:00</span></span>
+      </div>
+
+      <!-- User Session Pill -->
+      <div class="hidden sm:flex items-center gap-2 bg-white border border-stone-200 px-3 py-1 rounded-full shadow-sm text-xs">
+        <i class="fa-regular fa-envelope text-amber-600"></i>
+        <span id="navUserEmail" class="text-stone-700 font-medium truncate max-w-[150px]">pembeli@gmail.com</span>
+        <span id="navUserRole" class="badge-gold">VIP Buyer</span>
+      </div>
+
+      <!-- Action Dropdown / Buttons -->
+      <div class="flex items-center gap-2">
+        <!-- Backup Data Button -->
+        <button onclick="ExportManager.backupData(app.data)" class="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-stone-200 bg-white hover:bg-stone-50 text-xs font-semibold text-stone-700 transition" title="Download Backup File (JSON)">
+          <i class="fa-solid fa-download text-amber-600"></i> Backup
+        </button>
+
+        <!-- Restore Data Button -->
+        <label for="restoreFileInput" class="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-stone-200 bg-white hover:bg-stone-50 text-xs font-semibold text-stone-700 cursor-pointer transition" title="Restore Data dari Backup">
+          <i class="fa-solid fa-upload text-amber-600"></i> Restore
+        </label>
+        <input type="file" id="restoreFileInput" accept=".json" class="hidden" onchange="app.handleRestoreFile(this)">
+
+        <!-- Logout / Exit Session Button -->
+        <button type="button" onclick="app.openLogoutModal()" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-rose-200 bg-rose-50/70 hover:bg-rose-100 text-rose-700 transition shadow-sm text-xs font-semibold cursor-pointer" title="Keluar dari sesi ini">
+          <i class="fa-solid fa-arrow-right-from-bracket text-[11px]"></i>
+          <span>Keluar</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN APP CONTAINER -->
+  <div class="flex-1 flex overflow-hidden">
+
+    <!-- SIDEBAR NAVIGATION -->
+    <aside id="sidebar" class="w-64 bg-white/95 backdrop-blur-md border-r border-[#EFE7DA] p-4 flex flex-col justify-between fixed lg:static inset-y-0 left-0 z-30 transform -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out overflow-y-auto">
+      <div class="space-y-6">
+        <!-- Main Navigation Section -->
+        <div>
+          <div class="text-[11px] font-bold uppercase tracking-wider text-stone-400 px-3 mb-2.5">Menu Utama</div>
+          <nav class="space-y-1.5">
+            <div class="nav-tab-item active" data-tab="dashboard">
+              <div class="w-7 h-7 rounded-lg bg-gradient-to-br from-rose-500 to-pink-600 text-white flex items-center justify-center text-xs shadow-sm flex-shrink-0">
+                <i class="fa-solid fa-house"></i>
+              </div>
+              <span>Dashboard Acara</span>
+            </div>
+            <div class="nav-tab-item" data-tab="guideline">
+              <div class="w-7 h-7 rounded-lg bg-gradient-to-br from-violet-500 to-purple-600 text-white flex items-center justify-center text-xs shadow-sm flex-shrink-0">
+                <i class="fa-solid fa-wand-magic-sparkles"></i>
+              </div>
+              <span>Guideline Acara</span>
+            </div>
+            <div class="nav-tab-item" data-tab="tips">
+              <div class="w-7 h-7 rounded-lg bg-gradient-to-br from-amber-400 to-orange-500 text-white flex items-center justify-center text-xs shadow-sm flex-shrink-0">
+                <i class="fa-solid fa-lightbulb"></i>
+              </div>
+              <span>Tips Keuangan</span>
+            </div>
+            <div class="nav-tab-item" data-tab="savings">
+              <div class="w-7 h-7 rounded-lg bg-gradient-to-br from-emerald-500 to-teal-600 text-white flex items-center justify-center text-xs shadow-sm flex-shrink-0">
+                <i class="fa-solid fa-piggy-bank"></i>
+              </div>
+              <span>Tabungan & Kontribusi</span>
+            </div>
+            <div class="nav-tab-item" data-tab="budget">
+              <div class="w-7 h-7 rounded-lg bg-gradient-to-br from-blue-500 to-cyan-600 text-white flex items-center justify-center text-xs shadow-sm flex-shrink-0">
+                <i class="fa-solid fa-calculator"></i>
+              </div>
+              <span>Budget Tracker</span>
+            </div>
+            <div class="nav-tab-item" data-tab="checklists">
+              <div class="w-7 h-7 rounded-lg bg-gradient-to-br from-teal-500 to-emerald-600 text-white flex items-center justify-center text-xs shadow-sm flex-shrink-0">
+                <i class="fa-solid fa-clipboard-check"></i>
+              </div>
+              <span>Checklist Persiapan</span>
+            </div>
+            <div class="nav-tab-item" data-tab="rundown">
+              <div class="w-7 h-7 rounded-lg bg-gradient-to-br from-orange-500 to-red-500 text-white flex items-center justify-center text-xs shadow-sm flex-shrink-0">
+                <i class="fa-solid fa-clock"></i>
+              </div>
+              <span>Rundown Acara</span>
+            </div>
+          </nav>
+        </div>
+
+        <!-- Management & Relasi Section -->
+        <div>
+          <div class="text-[11px] font-bold uppercase tracking-wider text-stone-400 px-3 mb-2.5">Tamu & Vendor</div>
+          <nav class="space-y-1.5">
+            <div class="nav-tab-item" data-tab="guests">
+              <div class="w-7 h-7 rounded-lg bg-gradient-to-br from-fuchsia-500 to-purple-600 text-white flex items-center justify-center text-xs shadow-sm flex-shrink-0">
+                <i class="fa-solid fa-users"></i>
+              </div>
+              <span>Daftar Tamu & RSVP</span>
+            </div>
+            <div class="nav-tab-item" data-tab="entourage">
+              <div class="w-7 h-7 rounded-lg bg-gradient-to-br from-pink-500 to-rose-600 text-white flex items-center justify-center text-xs shadow-sm flex-shrink-0">
+                <i class="fa-solid fa-gem"></i>
+              </div>
+              <span>Bridesmaid & Groomsmen</span>
+            </div>
+            <div class="nav-tab-item" data-tab="vendors">
+              <div class="w-7 h-7 rounded-lg bg-gradient-to-br from-indigo-500 to-blue-600 text-white flex items-center justify-center text-xs shadow-sm flex-shrink-0">
+                <i class="fa-solid fa-scale-balanced"></i>
+              </div>
+              <span>Perbandingan Vendor</span>
+            </div>
+            <div class="nav-tab-item" data-tab="administration">
+              <div class="w-7 h-7 rounded-lg bg-gradient-to-br from-cyan-500 to-blue-600 text-white flex items-center justify-center text-xs shadow-sm flex-shrink-0">
+                <i class="fa-solid fa-file-invoice"></i>
+              </div>
+              <span>Administrasi & Seserahan</span>
+            </div>
+            <div class="nav-tab-item" data-tab="songs">
+              <div class="w-7 h-7 rounded-lg bg-gradient-to-br from-purple-500 to-pink-600 text-white flex items-center justify-center text-xs shadow-sm flex-shrink-0">
+                <i class="fa-solid fa-music"></i>
+              </div>
+              <span>Lagu Pernikahan</span>
+            </div>
+          </nav>
+        </div>
+
+        <!-- Perencanaan Tambahan & Bonus -->
+        <div>
+          <div class="text-[11px] font-bold uppercase tracking-wider text-stone-400 px-3 mb-2.5">Simulasi & Bonus</div>
+          <nav class="space-y-1.5">
+            <div class="nav-tab-item" data-tab="cost_plans">
+              <div class="w-7 h-7 rounded-lg bg-gradient-to-br from-amber-500 to-yellow-500 text-white flex items-center justify-center text-xs shadow-sm flex-shrink-0">
+                <i class="fa-solid fa-coins"></i>
+              </div>
+              <span>Rancangan Biaya (3-100jt)</span>
+            </div>
+            <div class="nav-tab-item" data-tab="bonus">
+              <div class="w-7 h-7 rounded-lg bg-gradient-to-br from-rose-500 to-pink-600 text-white flex items-center justify-center text-xs shadow-sm flex-shrink-0">
+                <i class="fa-solid fa-gift"></i>
+              </div>
+              <span>Bonus & Deep Talk (180 Q)</span>
+            </div>
+          </nav>
+        </div>
+      </div>
+
+      <!-- Sidebar Footer -->
+      <div class="pt-4 border-t border-stone-100 text-center">
+        <p class="text-[11px] text-stone-400">Wedding Planner Pro v2.5</p>
+        <p class="text-[11px] text-amber-700 font-serif">Made with love for your dream wedding</p>
+      </div>
+    </aside>
+
+    <!-- RIGHT MAIN CONTENT AREA -->
+    <main class="flex-1 overflow-y-auto p-4 sm:p-8 max-w-7xl mx-auto w-full">
+
+      <!-- ===================================================================
+           TAB 1: DASHBOARD
+           =================================================================== -->
+      <section id="view-dashboard" class="tab-view-container space-y-8">
+        
+        <!-- Romantic Couple Hero Header with Countdown -->
+        <div class="wedding-card p-6 sm:p-8 card-featured-glow relative overflow-hidden bg-white/95 shadow-xl shadow-rose-500/5">
+          <div class="relative z-10 flex flex-col lg:flex-row items-center justify-between gap-6 text-center lg:text-left">
+            <div>
+              <span class="badge-rose mb-2 text-xs font-bold tracking-wide">
+                <i class="fa-solid fa-sparkles text-amber-500"></i> PERNIKAHAN IMPIAN YANG TERTATA RAPI
+              </span>
+              <div class="flex items-center justify-center lg:justify-start gap-3 mt-1.5">
+                <h2 id="dashCoupleNames" class="font-serif font-black text-3xl sm:text-5xl text-grad-rose leading-tight tracking-tight">
+                  Anggah & Chintya
+                </h2>
+                <button onclick="app.openEditProfileModal()" class="text-rose-400 hover:text-rose-600 hover:bg-rose-50 p-2 rounded-2xl border border-rose-200/60 transition shadow-sm" title="Ubah Nama Pasangan, Tanggal & Lokasi">
+                  <i class="fa-solid fa-pen-to-square text-lg"></i>
+                </button>
+              </div>
+              <p class="text-slate-600 mt-2 text-sm sm:text-base flex items-center justify-center lg:justify-start gap-2">
+                <i class="fa-regular fa-calendar-check text-rose-500"></i>
+                <span id="dashWeddingDateDisplay" class="font-semibold text-slate-800">Kamis, 4 Maret 2027</span>
+                &bull; <span id="dashVenueDisplay" class="italic text-slate-500 font-medium">Villa Bukit Randu, Bandar Lampung</span>
+              </p>
+              <button onclick="app.openEditProfileModal()" class="inline-flex items-center gap-2 text-xs text-rose-700 font-bold mt-3 hover:bg-rose-100 bg-rose-50/90 px-3.5 py-1.5 rounded-full border border-rose-200 transition shadow-sm">
+                <i class="fa-solid fa-user-pen text-rose-600"></i> Ubah Nama Pasangan, Tanggal & Lokasi
+              </button>
+            </div>
+
+            <!-- Countdown Pill Box -->
+            <div class="bg-gradient-to-br from-rose-500 via-pink-500 to-amber-500 text-white p-6 rounded-3xl shadow-xl shadow-rose-500/30 flex items-center gap-5 min-w-[280px] border border-white/20">
+              <div class="text-center flex-1">
+                <div id="dashDaysCount" class="font-serif font-black text-4xl sm:text-5xl leading-none drop-shadow">116</div>
+                <div id="dashDaysLabel" class="text-xs uppercase tracking-wider font-extrabold text-rose-100 mt-1">Hari Menuju Pernikahan</div>
+              </div>
+              <div class="text-3xl text-white drop-shadow">
+                <i class="fa-solid fa-heart animate-pulse"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Overview Keuangan & Budget Metrics -->
+        <div>
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="font-serif font-bold text-xl text-slate-900">Overview Keuangan & Realisasi</h3>
+            <button onclick="app.switchTab('budget')" class="text-xs text-rose-600 hover:text-rose-700 hover:underline font-bold flex items-center gap-1">
+              Lihat Detail Budget <i class="fa-solid fa-arrow-right"></i>
+            </button>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <!-- Total Anggaran -->
+            <div class="wedding-card p-5 border-t-4 border-blue-500 bg-white/95">
+              <div class="flex items-center justify-between mb-3">
+                <span class="text-xs font-semibold text-slate-500">Total Anggaran Disiapkan</span>
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-500 text-white flex items-center justify-center text-sm shadow-md shadow-blue-500/25">
+                  <i class="fa-solid fa-wallet"></i>
+                </div>
+              </div>
+              <div id="dashTotalAnggaran" class="font-serif font-bold text-2xl text-slate-900">Rp 138.000.000</div>
+              <span class="text-[11px] text-blue-600 font-semibold mt-1 block">Rencana alokasi dana awal</span>
+            </div>
+
+            <!-- Total Aktual Vendor -->
+            <div class="wedding-card p-5 border-t-4 border-purple-500 bg-white/95">
+              <div class="flex items-center justify-between mb-3">
+                <span class="text-xs font-semibold text-slate-500">Terkontrak Vendor</span>
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-indigo-600 text-white flex items-center justify-center text-sm shadow-md shadow-purple-500/25">
+                  <i class="fa-solid fa-file-signature"></i>
+                </div>
+              </div>
+              <div id="dashTotalAktual" class="font-serif font-bold text-2xl text-purple-950">Rp 80.396.250</div>
+              <span class="text-[11px] text-purple-600 font-semibold mt-1 block">Nilai kesepakatan riil vendor</span>
+            </div>
+
+            <!-- Total Yang Sudah Dibayar -->
+            <div class="wedding-card p-5 border-t-4 border-emerald-500 bg-white/95">
+              <div class="flex items-center justify-between mb-3">
+                <span class="text-xs font-semibold text-slate-500">Sudah Dibayar (DP/Lunas)</span>
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-400 to-teal-600 text-white flex items-center justify-center text-sm shadow-md shadow-emerald-500/25">
+                  <i class="fa-solid fa-circle-check"></i>
+                </div>
+              </div>
+              <div id="dashTotalTerbayar" class="font-serif font-bold text-2xl text-emerald-700">Rp 23.354.000</div>
+              <span class="text-[11px] text-emerald-600 font-semibold mt-1 block">Uang keluar terverifikasi</span>
+            </div>
+
+            <!-- Total Tanggungan / Sisa Kewajiban -->
+            <div class="wedding-card p-5 border-t-4 border-rose-500 bg-white/95">
+              <div class="flex items-center justify-between mb-3">
+                <span class="text-xs font-semibold text-slate-500">Sisa Tanggungan</span>
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-rose-500 to-red-600 text-white flex items-center justify-center text-sm shadow-md shadow-rose-500/25">
+                  <i class="fa-solid fa-hourglass-half"></i>
+                </div>
+              </div>
+              <div class="flex items-baseline justify-between">
+                <div id="dashTotalTanggungan" class="font-serif font-bold text-2xl text-rose-600">Rp 57.042.250</div>
+                <span id="dashTanggunganBadge" class="badge-rose text-[10px]">Belum Terlunasi</span>
+              </div>
+              <span class="text-[11px] text-rose-500 font-medium mt-1 block">Kewajiban bayar tersisa</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 2 Column Layout: Upcoming Tasks & Guest RSVP Summary -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <!-- Upcoming 7 Tasks Widget (2 cols) -->
+          <div class="lg:col-span-2 wedding-card p-6">
+            <div class="flex items-center justify-between mb-4">
+              <div>
+                <h3 class="font-serif font-bold text-lg text-stone-900">7 Tugas Terdekat</h3>
+                <p class="text-xs text-stone-500">Prioritas persiapan yang perlu diselesaikan segera</p>
+              </div>
+              <button onclick="app.switchTab('checklists')" class="btn-outline-gold text-xs py-1.5 px-3">
+                Buka Checklist Lengkap
+              </button>
+            </div>
+
+            <div id="dashUpcomingTasksList" class="space-y-2.5">
+              <!-- Rendered via JS -->
+            </div>
+          </div>
+
+          <!-- Guest & RSVP Summary Card (1 col) -->
+          <div class="wedding-card p-6 flex flex-col justify-between">
+            <div>
+              <div class="flex items-center justify-between mb-4">
+                <div>
+                  <h3 class="font-serif font-bold text-lg text-slate-900">Status Undangan</h3>
+                  <p class="text-xs text-slate-400">Ringkasan daftar tamu & RSVP</p>
+                </div>
+                <button onclick="app.switchTab('guests')" class="text-xs text-rose-600 hover:text-rose-700 hover:underline font-bold flex items-center gap-1">
+                  Kelola Tamu <i class="fa-solid fa-arrow-right text-[10px]"></i>
+                </button>
+              </div>
+
+              <div class="space-y-3.5">
+                <div class="bg-sky-50/70 p-4 rounded-2xl border border-sky-100 flex items-center justify-between transition hover:border-sky-300">
+                  <div class="flex items-center gap-3.5">
+                    <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-sky-500 to-blue-600 text-white flex items-center justify-center text-sm shadow-sm">
+                      <i class="fa-solid fa-users"></i>
+                    </div>
+                    <div>
+                      <span class="text-xs text-slate-500 font-medium">Total Tamu List</span>
+                      <h4 id="dashGuestTotal" class="font-serif font-bold text-xl text-slate-900">10</h4>
+                    </div>
+                  </div>
+                  <span class="badge-blue text-xs">Undangan</span>
+                </div>
+
+                <div class="bg-emerald-50/70 p-4 rounded-2xl border border-emerald-100 flex items-center justify-between transition hover:border-emerald-300">
+                  <div class="flex items-center gap-3.5">
+                    <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-emerald-500 to-teal-600 text-white flex items-center justify-center text-sm shadow-sm">
+                      <i class="fa-solid fa-circle-check"></i>
+                    </div>
+                    <div>
+                      <span class="text-xs text-slate-500 font-medium">Konfirmasi Hadir</span>
+                      <h4 id="dashGuestHadir" class="font-serif font-bold text-xl text-emerald-700">6</h4>
+                    </div>
+                  </div>
+                  <span class="badge-sage text-xs">Siap Hadir</span>
+                </div>
+
+                <div class="bg-rose-50/70 p-4 rounded-2xl border border-rose-100 flex items-center justify-between transition hover:border-rose-300">
+                  <div class="flex items-center gap-3.5">
+                    <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-rose-500 to-pink-600 text-white flex items-center justify-center text-sm shadow-sm">
+                      <i class="fa-solid fa-envelope-circle-check"></i>
+                    </div>
+                    <div>
+                      <span class="text-xs text-slate-500 font-medium">Belum Dikirim WA</span>
+                      <h4 id="dashGuestPending" class="font-serif font-bold text-xl text-rose-700">2</h4>
+                    </div>
+                  </div>
+                  <span class="badge-rose text-xs">Kirim Segera</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="mt-6 pt-4 border-t border-slate-100">
+              <button onclick="app.switchTab('guests')" class="w-full btn-emerald text-xs py-3 rounded-xl font-bold flex items-center justify-center gap-2 shadow-md">
+                <i class="fa-brands fa-whatsapp text-base"></i> Kirim Undangan WhatsApp Tamu
+              </button>
+            </div>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- ===================================================================
+           TAB 2: GUIDELINE ACARA (WEDDING DREAM & CONCEPT)
+           =================================================================== -->
+      <section id="view-guideline" class="tab-view-container hidden space-y-6">
+        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div>
+            <span class="badge-gold text-xs mb-1">Konsep & Visi Pernikahan</span>
+            <h2 class="font-serif font-bold text-2xl sm:text-3xl text-stone-900">Guideline Acara & Wedding Dream</h2>
+            <p class="text-stone-500 text-xs sm:text-sm mt-1">
+              Panduan pertanyaan terarah untuk merumuskan konsep pernikahan impian agar terarah dan sesuai ekspektasi kedua mempelai.
+            </p>
+          </div>
+        </div>
+
+        <!-- Prolog Box -->
+        <div class="wedding-card p-6 bg-gradient-to-r from-rose-50/80 via-white to-amber-50/60 border-l-4 border-rose-500 shadow-sm">
+          <div class="flex items-start gap-4">
+            <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-rose-500 to-pink-400 text-white flex items-center justify-center flex-shrink-0 text-lg shadow-sm">
+              <i class="fa-solid fa-quote-left"></i>
+            </div>
+            <div>
+              <h4 class="font-serif font-bold text-base text-slate-900 mb-1">Prolog: Menemukan "Wedding Dream" Anda</h4>
+              <p class="text-slate-600 text-xs sm:text-sm leading-relaxed">
+                Dalam menyelenggarakan acara pernikahan, pastinya kamu dan pasangan memiliki impian-impian tertentu. Ada yang menginginkan intimate garden party, modern chic, adat tradisional sakral, atau perpaduan keduanya. Jawab pertanyaan-pertanyaan berikut agar kamu memiliki kompas konsep yang jelas saat berdiskusi dengan keluarga maupun vendor.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Q&A List Container -->
+        <div id="guidelineQAList" class="space-y-4">
+          <!-- Rendered via JS -->
+        </div>
+      </section>
+
+      <!-- ===================================================================
+           TAB 3: TIPS KEUANGAN DALAM PERNIKAHAN
+           =================================================================== -->
+      <section id="view-tips" class="tab-view-container hidden space-y-6">
+        <div>
+          <span class="badge-emerald text-xs mb-1">Finansial Cerdas</span>
+          <h2 class="font-serif font-bold text-2xl sm:text-3xl text-slate-900">10 Tips Menghemat Biaya Pernikahan</h2>
+          <p class="text-slate-500 text-xs sm:text-sm mt-1">
+            Pernikahan sakral adalah gerbang awal, kehidupan rumah tangga setelahnya jauh lebih panjang dan membahagiakan.
+          </p>
+        </div>
+
+        <!-- Rule 50% Tabungan Card -->
+        <div class="wedding-card p-6 bg-gradient-to-r from-emerald-50/80 via-white to-teal-50/60 border-l-4 border-emerald-500 flex flex-col md:flex-row items-center justify-between gap-6 shadow-sm">
+          <div class="flex items-center gap-4">
+            <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-emerald-500 to-teal-600 text-white flex items-center justify-center text-xl flex-shrink-0 shadow-md">
+              <i class="fa-solid fa-shield-halved"></i>
+            </div>
+            <div>
+              <h3 class="font-serif font-bold text-lg text-slate-900">Golden Rule Finansial Pernikahan</h3>
+              <p class="text-slate-600 text-xs sm:text-sm mt-1 leading-relaxed">
+                <strong>Gunakan maksimal 50% dari total tabungan likuid Anda saat ini untuk pesta pernikahan.</strong> Sisakan 50% lainnya untuk dana darurat, sewa/DP rumah, dan persiapan menyambut buah hati tercinta.
+              </p>
+            </div>
+          </div>
+          <div class="bg-white p-4 rounded-2xl border border-emerald-100 text-center min-w-[220px] shadow-sm">
+            <span class="text-xs text-slate-400 block font-medium">Batas Maksimal Penggunaan</span>
+            <span id="tipsMaxRecommended" class="font-serif font-bold text-2xl text-emerald-700">Rp 50.000.000</span>
+            <span class="text-[10px] text-slate-400 block mt-0.5">(Dari target tabungan 100 Juta)</span>
+          </div>
+        </div>
+
+        <!-- 10 Tips Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="wedding-card p-5 hover:border-emerald-300 transition">
+            <div class="flex items-center gap-3 mb-2.5">
+              <span class="w-8 h-8 rounded-xl bg-gradient-to-tr from-emerald-500 to-teal-400 text-white font-bold text-xs flex items-center justify-center shadow-sm">1</span>
+              <h4 class="font-serif font-bold text-slate-900 text-base">Tentukan Anggaran Realistis Sejak Awal</h4>
+            </div>
+            <p class="text-slate-600 text-xs leading-relaxed">
+              Tentukan anggaran yang realistis dan berpegang teguh padanya. Identifikasi prioritas utama Anda bersama pasangan dan alokasikan dana sesuai skala kepentingan.
+            </p>
+          </div>
+
+          <div class="wedding-card p-5 hover:border-rose-300 transition">
+            <div class="flex items-center gap-3 mb-2.5">
+              <span class="w-8 h-8 rounded-xl bg-gradient-to-tr from-rose-500 to-pink-500 text-white font-bold text-xs flex items-center justify-center shadow-sm">2</span>
+              <h4 class="font-serif font-bold text-slate-900 text-base">Buat Daftar Tamu yang Terkurasi (Intimate)</h4>
+            </div>
+            <p class="text-slate-600 text-xs leading-relaxed">
+              Salah satu pos biaya terbesar adalah katering makanan. Membatasi jumlah tamu ke keluarga inti dan sahabat terdekat dapat memangkas 40-50% biaya acara!
+            </p>
+          </div>
+
+          <div class="wedding-card p-5 hover:border-purple-300 transition">
+            <div class="flex items-center gap-3 mb-2.5">
+              <span class="w-8 h-8 rounded-xl bg-gradient-to-tr from-purple-500 to-indigo-500 text-white font-bold text-xs flex items-center justify-center shadow-sm">3</span>
+              <h4 class="font-serif font-bold text-slate-900 text-base">Pilih Tanggal di Luar Musim Ramai (Off-Season)</h4>
+            </div>
+            <p class="text-slate-600 text-xs leading-relaxed">
+              Musim pernikahan ramai (seperti bulan Syawal / Zulhijjah / akhir tahun) sering kali membuat harga venue dan vendor melonjak tinggi. Tanggal biasa memberikan ruang negosiasi diskon besar.
+            </p>
+          </div>
+
+          <div class="wedding-card p-5 hover:border-sky-300 transition">
+            <div class="flex items-center gap-3 mb-2.5">
+              <span class="w-8 h-8 rounded-xl bg-gradient-to-tr from-sky-500 to-blue-500 text-white font-bold text-xs flex items-center justify-center shadow-sm">4</span>
+              <h4 class="font-serif font-bold text-slate-900 text-base">Pertimbangkan Hari Kerja atau Sesi Pagi</h4>
+            </div>
+            <p class="text-slate-600 text-xs leading-relaxed">
+              Banyak gedung dan hotel memberikan harga sewa 20-30% lebih murah untuk hari Jumat atau sesi pagi dibandingkan slot hari Sabtu malam prime time.
+            </p>
+          </div>
+
+          <div class="wedding-card p-5 hover:border-amber-300 transition">
+            <div class="flex items-center gap-3 mb-2.5">
+              <span class="w-8 h-8 rounded-xl bg-gradient-to-tr from-amber-500 to-orange-500 text-white font-bold text-xs flex items-center justify-center shadow-sm">5</span>
+              <h4 class="font-serif font-bold text-slate-900 text-base">Maksimalkan Undangan Digital & Website</h4>
+            </div>
+            <p class="text-slate-600 text-xs leading-relaxed">
+              Cetak undangan fisik hanya untuk keluarga sepuh / VIP. Selebihnya gunakan undangan digital interaktif via WhatsApp yang hemat biaya dan ramah lingkungan.
+            </p>
+          </div>
+
+          <div class="wedding-card p-5 hover:border-pink-300 transition">
+            <div class="flex items-center gap-3 mb-2.5">
+              <span class="w-8 h-8 rounded-xl bg-gradient-to-tr from-fuchsia-500 to-pink-500 text-white font-bold text-xs flex items-center justify-center shadow-sm">6</span>
+              <h4 class="font-serif font-bold text-slate-900 text-base">Sewa Busana Pengantin Daripada Membeli</h4>
+            </div>
+            <p class="text-slate-600 text-xs leading-relaxed">
+              Gaun pengantin dan beskap hanya dipakai beberapa jam. Menyewa gaun premium berkualitas jauh lebih hemat jutaan rupiah dibandingkan menjahit baru dari nol.
+            </p>
+          </div>
+
+          <div class="wedding-card p-5 hover:border-indigo-300 transition">
+            <div class="flex items-center gap-3 mb-2.5">
+              <span class="w-8 h-8 rounded-xl bg-gradient-to-tr from-indigo-500 to-cyan-500 text-white font-bold text-xs flex items-center justify-center shadow-sm">7</span>
+              <h4 class="font-serif font-bold text-slate-900 text-base">Bandingkan Minimal 3 Vendor Tiap Pos Biaya</h4>
+            </div>
+            <p class="text-slate-600 text-xs leading-relaxed">
+              Gunakan fitur "Perbandingan Vendor" di aplikasi ini untuk membandingkan harga, portofolio, dan kelebihan masing-masing vendor sebelum menandatangani SPK.
+            </p>
+          </div>
+
+          <div class="wedding-card p-5 hover:border-teal-300 transition">
+            <div class="flex items-center gap-3 mb-2.5">
+              <span class="w-8 h-8 rounded-xl bg-gradient-to-tr from-teal-500 to-emerald-500 text-white font-bold text-xs flex items-center justify-center shadow-sm">8</span>
+              <h4 class="font-serif font-bold text-slate-900 text-base">Manfaatkan Keterampilan Teman & Keluarga</h4>
+            </div>
+            <p class="text-slate-600 text-xs leading-relaxed">
+              Jika ada sahabat yang piawai fotografi, MC, atau bernyanyi akustik, ajak berkolaborasi dengan tarif persahabatan atau sistem barter bantuan.
+            </p>
+          </div>
+
+          <div class="wedding-card p-5 hover:border-orange-300 transition">
+            <div class="flex items-center gap-3 mb-2.5">
+              <span class="w-8 h-8 rounded-xl bg-gradient-to-tr from-orange-500 to-rose-500 text-white font-bold text-xs flex items-center justify-center shadow-sm">9</span>
+              <h4 class="font-serif font-bold text-slate-900 text-base">Cari Penawaran Paket Bundle (All-in)</h4>
+            </div>
+            <p class="text-slate-600 text-xs leading-relaxed">
+              Paket bundle katering + dekorasi + tenda sering kali jauh lebih hemat daripada menyewa vendor secara terpisah-pisah karena efisiensi logistik mereka.
+            </p>
+          </div>
+
+          <div class="wedding-card p-5 hover:border-rose-400 transition">
+            <div class="flex items-center gap-3 mb-2.5">
+              <span class="w-8 h-8 rounded-xl bg-gradient-to-tr from-rose-600 to-amber-500 text-white font-bold text-xs flex items-center justify-center shadow-sm">10</span>
+              <h4 class="font-serif font-bold text-slate-900 text-base">Fokus pada Momen & Kebahagiaan</h4>
+            </div>
+            <p class="text-slate-600 text-xs leading-relaxed">
+              Tamu undangan akan paling mengingat senyum bahagia pengantin, khidmatnya ijab kabul, dan kelezatan hidangan. Jangan memaksakan elemen gengsi yang membebani.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===================================================================
+           TAB 4: TABUNGAN & KONTRIBUTOR
+           =================================================================== -->
+      <section id="view-savings" class="tab-view-container hidden space-y-6">
+        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div>
+            <span class="badge-gold text-xs mb-1">Target Dana & Progres</span>
+            <h2 class="font-serif font-bold text-2xl sm:text-3xl text-slate-900">Tabungan & Kontributor</h2>
+            <p class="text-slate-500 text-xs sm:text-sm mt-1">
+              Pantau progres tabungan mandiri dari Calon Pengantin Pria (CPP), Wanita (CPW), serta bantuan sukarela keluarga.
+            </p>
+          </div>
+        </div>
+
+        <!-- Target vs Terkumpul Progress Card -->
+        <div class="wedding-card p-6 card-featured-glow">
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-center md:text-left mb-6">
+            <div>
+              <span class="text-xs text-slate-400 block mb-1 font-medium">Target Tabungan Pernikahan</span>
+              <div id="savingsTargetDisplay" class="font-serif font-bold text-3xl text-slate-900">Rp 100.000.000</div>
+              <span class="text-xs text-slate-400 mt-1 block"><i class="fa-regular fa-calendar-check mr-1 text-rose-400"></i>Target Selesai: 8 September 2026</span>
+            </div>
+            <div>
+              <span class="text-xs text-slate-400 block mb-1 font-medium">Total Dana Terkumpul</span>
+              <div id="savingsTotalTerkumpul" class="font-serif font-bold text-3xl text-emerald-600">Rp 12.178.108</div>
+              <span id="savingsProgressLabel" class="text-xs font-bold text-emerald-700 mt-1 block">12% Tercapai</span>
+            </div>
+            <div>
+              <span class="text-xs text-slate-400 block mb-1 font-medium">Kekurangan Dana Saat Ini</span>
+              <div id="savingsMasihKurang" class="font-serif font-bold text-3xl text-rose-600">-Rp 87.821.892</div>
+              <span class="text-xs text-slate-500 mt-1 block" id="savingsMonthlyRec">Rekomendasi: Rp 43.910.946 / bulan</span>
+            </div>
+          </div>
+
+          <!-- Progress Bar -->
+          <div class="progress-bar-container h-3.5">
+            <div id="savingsProgressBar" class="progress-bar-fill" style="width: 12%;"></div>
+          </div>
+        </div>
+
+        <!-- 3 Column Sub-Tables: CPP, CPW, Kontributor -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <!-- Calon Pengantin Pria (CPP) -->
+          <div class="wedding-card p-5 border-sky-200 card-glow-blue">
+            <div class="flex items-center justify-between pb-3 border-b border-sky-100 mb-3">
+              <div class="flex items-center gap-3">
+                <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-sky-500 to-blue-600 text-white flex items-center justify-center text-sm shadow-sm">
+                  <i class="fa-solid fa-mars"></i>
+                </div>
+                <div>
+                  <h4 class="font-serif font-bold text-base text-slate-900">Tabungan CPP (Pria)</h4>
+                  <div id="savingsTotalCpp" class="font-bold text-sky-700 text-sm">Rp 1.089.080</div>
+                </div>
+              </div>
+              <button onclick="app.addContribution('cpp')" class="btn-blue text-xs py-1.5 px-3">
+                <i class="fa-solid fa-plus mr-1"></i>Setor
+              </button>
+            </div>
+            <div class="overflow-x-auto max-h-60 overflow-y-auto">
+              <table class="w-full text-left text-xs">
+                <tbody id="savingsCppList">
+                  <!-- Rendered via JS -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Calon Pengantin Wanita (CPW) -->
+          <div class="wedding-card p-5 border-rose-200 card-glow-rose">
+            <div class="flex items-center justify-between pb-3 border-b border-rose-100 mb-3">
+              <div class="flex items-center gap-3">
+                <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-rose-500 to-pink-500 text-white flex items-center justify-center text-sm shadow-sm">
+                  <i class="fa-solid fa-venus"></i>
+                </div>
+                <div>
+                  <h4 class="font-serif font-bold text-base text-slate-900">Tabungan CPW (Wanita)</h4>
+                  <div id="savingsTotalCpw" class="font-bold text-rose-700 text-sm">Rp 1.089.028</div>
+                </div>
+              </div>
+              <button onclick="app.addContribution('cpw')" class="btn-rose text-xs py-1.5 px-3">
+                <i class="fa-solid fa-plus mr-1"></i>Setor
+              </button>
+            </div>
+            <div class="overflow-x-auto max-h-60 overflow-y-auto">
+              <table class="w-full text-left text-xs">
+                <tbody id="savingsCpwList">
+                  <!-- Rendered via JS -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Kontributor Keluarga -->
+          <div class="wedding-card p-5 border-emerald-200 card-glow-emerald">
+            <div class="flex items-center justify-between pb-3 border-b border-emerald-100 mb-3">
+              <div class="flex items-center gap-3">
+                <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-emerald-500 to-teal-600 text-white flex items-center justify-center text-sm shadow-sm">
+                  <i class="fa-solid fa-people-roof"></i>
+                </div>
+                <div>
+                  <h4 class="font-serif font-bold text-base text-slate-900">Bantuan Kontributor</h4>
+                  <div id="savingsTotalFamily" class="font-bold text-emerald-700 text-sm">Rp 10.000.000</div>
+                </div>
+              </div>
+              <button onclick="app.addContribution('family')" class="btn-emerald text-xs py-1.5 px-3">
+                <i class="fa-solid fa-plus mr-1"></i>Tambah
+              </button>
+            </div>
+            <div class="overflow-x-auto max-h-60 overflow-y-auto">
+              <table class="w-full text-left text-xs">
+                <tbody id="savingsFamilyList">
+                  <!-- Rendered via JS -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===================================================================
+           TAB 5: BUDGET TRACKER
+           =================================================================== -->
+      <section id="view-budget" class="tab-view-container hidden space-y-6">
+        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div>
+            <span class="badge-gold text-xs mb-1">Manajemen Pengeluaran & Vendor</span>
+            <h2 class="font-serif font-bold text-2xl sm:text-3xl text-stone-900">Wedding Budget Tracker</h2>
+            <p class="text-stone-500 text-xs sm:text-sm mt-1">
+              Pantau selisih dana yang disiapkan, harga terkontrak vendor, uang muka (DP), dan sisa tanggungan pelunasan.
+            </p>
+          </div>
+          <button onclick="app.openAddBudgetModal()" class="btn-gold text-xs sm:text-sm py-2 px-4 shadow-md">
+            <i class="fa-solid fa-plus mr-1"></i> Tambah Item Anggaran
+          </button>
+        </div>
+
+        <!-- Metric Summary Chips -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div class="wedding-card p-4 flex items-center gap-3.5 border-amber-100">
+            <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-amber-500 to-orange-500 text-white flex items-center justify-center text-base shadow-sm">
+              <i class="fa-solid fa-wallet"></i>
+            </div>
+            <div>
+              <span class="text-xs text-slate-400 font-medium block">Total Rencana</span>
+              <div id="budgetSumPlan" class="font-serif font-bold text-lg sm:text-xl text-slate-900">Rp 0</div>
+            </div>
+          </div>
+          <div class="wedding-card p-4 flex items-center gap-3.5 border-sky-100">
+            <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-sky-500 to-blue-600 text-white flex items-center justify-center text-base shadow-sm">
+              <i class="fa-solid fa-file-invoice-dollar"></i>
+            </div>
+            <div>
+              <span class="text-xs text-slate-400 font-medium block">Kontrak Real</span>
+              <div id="budgetSumActual" class="font-serif font-bold text-lg sm:text-xl text-sky-800">Rp 0</div>
+            </div>
+          </div>
+          <div class="wedding-card p-4 flex items-center gap-3.5 border-emerald-100">
+            <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-emerald-500 to-teal-600 text-white flex items-center justify-center text-base shadow-sm">
+              <i class="fa-solid fa-circle-check"></i>
+            </div>
+            <div>
+              <span class="text-xs text-slate-400 font-medium block">Total Terbayar</span>
+              <div id="budgetSumPaid" class="font-serif font-bold text-lg sm:text-xl text-emerald-700">Rp 0</div>
+            </div>
+          </div>
+          <div class="wedding-card p-4 flex items-center gap-3.5 border-rose-100">
+            <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-rose-500 to-pink-600 text-white flex items-center justify-center text-base shadow-sm">
+              <i class="fa-solid fa-hand-holding-dollar"></i>
+            </div>
+            <div>
+              <span class="text-xs text-slate-400 font-medium block">Sisa Pelunasan</span>
+              <div id="budgetSumTanggungan" class="font-serif font-bold text-lg sm:text-xl text-rose-600">Rp 0</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Filter Bar -->
+        <div class="wedding-card p-4 flex flex-wrap items-center justify-between gap-3">
+          <div class="flex flex-wrap items-center gap-3">
+            <div>
+              <label class="text-[11px] font-semibold text-stone-500 block mb-1">Filter Acara:</label>
+              <select id="budgetFilterEvent" onchange="app.renderBudget()" class="form-input-luxury text-xs py-1.5 px-3">
+                <option value="all">Semua Rangkaian Acara</option>
+                <option value="Lamaran">Lamaran</option>
+                <option value="Akad & Resepsi">Akad & Resepsi</option>
+                <option value="Honeymoon">Honeymoon</option>
+              </select>
+            </div>
+            <div>
+              <label class="text-[11px] font-semibold text-stone-500 block mb-1">Filter Kategori:</label>
+              <select id="budgetFilterCategory" onchange="app.renderBudget()" class="form-input-luxury text-xs py-1.5 px-3">
+                <option value="all">Semua Kategori</option>
+                <option value="Catering">Catering</option>
+                <option value="Venue">Venue</option>
+                <option value="Decor">Decor</option>
+                <option value="Attire">Attire / Gaun</option>
+                <option value="Photo/Video">Photo & Video</option>
+                <option value="Entertainment">Entertainment</option>
+                <option value="WO">Wedding Organizer</option>
+                <option value="Souvenir">Souvenir</option>
+                <option value="Undangan">Undangan</option>
+                <option value="Admin">Admin & KUA</option>
+                <option value="Adat">Prosesi Adat</option>
+              </select>
+            </div>
+          </div>
+          <div class="text-xs text-stone-400">
+            Klik tombol <strong>"Bayar"</strong> untuk mencatat cicilan/DP vendor.
+          </div>
+        </div>
+
+        <!-- Budget Items Table -->
+        <div class="wedding-card overflow-hidden">
+          <div class="overflow-x-auto">
+            <table class="wedding-table">
+              <thead>
+                <tr>
+                  <th>Event</th>
+                  <th>Kategori</th>
+                  <th>Item / Vendor Terkait</th>
+                  <th>Yang Disiapkan</th>
+                  <th>Perlu Dikeluarkan</th>
+                  <th>Sudah Dibayar</th>
+                  <th>Tanggungan</th>
+                  <th class="text-center">Status</th>
+                  <th class="text-right">Aksi</th>
+                </tr>
+              </thead>
+              <tbody id="budgetTableBody">
+                <!-- Rendered via JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===================================================================
+           TAB 6: CHECKLIST SHEET PERSIAPAN (50+ TUGAS)
+           =================================================================== -->
+      <section id="view-checklists" class="tab-view-container hidden space-y-6">
+        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div>
+            <span class="badge-gold text-xs mb-1">To-Do List Terstruktur</span>
+            <h2 class="font-serif font-bold text-2xl sm:text-3xl text-stone-900">Checklist Sheet Persiapan</h2>
+            <p class="text-stone-500 text-xs sm:text-sm mt-1">
+              50+ daftar periksa teruji mencakup Lamaran, Berkas KUA, Akad Nikah, hingga Resepsi Hari-H.
+            </p>
+          </div>
+          <button onclick="app.openAddTaskModal()" class="btn-gold text-xs sm:text-sm py-2 px-4 shadow-md">
+            <i class="fa-solid fa-plus mr-1"></i> Tambah Tugas Baru
+          </button>
+        </div>
+
+        <!-- Status Counters -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+          <div class="wedding-card p-4 text-center cursor-pointer card-glow-purple transition" onclick="app.filterChecklist = 'all'; app.renderChecklists();">
+            <span class="text-xs text-purple-600 block font-semibold">Total Tugas</span>
+            <div id="checkTotalCount" class="font-serif font-bold text-2xl text-purple-800">50</div>
+          </div>
+          <div class="wedding-card p-4 text-center cursor-pointer card-glow-emerald transition" onclick="app.filterChecklist = 'done'; app.renderChecklists();">
+            <span class="text-xs text-emerald-600 block font-semibold">Selesai Dikerjakan</span>
+            <div id="checkDoneCount" class="font-serif font-bold text-2xl text-emerald-700">18</div>
+          </div>
+          <div class="wedding-card p-4 text-center cursor-pointer card-glow-gold transition" onclick="app.filterChecklist = 'pending'; app.renderChecklists();">
+            <span class="text-xs text-amber-600 block font-semibold">Dalam Proses</span>
+            <div id="checkPendingCount" class="font-serif font-bold text-2xl text-amber-700">32</div>
+          </div>
+          <div class="wedding-card p-4 text-center cursor-pointer card-glow-rose transition" onclick="app.filterChecklist = 'overdue'; app.renderChecklists();">
+            <span class="text-xs text-rose-600 block font-semibold">Terlewat Jadwal</span>
+            <div id="checkOverdueCount" class="font-serif font-bold text-2xl text-rose-700">0</div>
+          </div>
+        </div>
+
+        <!-- Task Items Container -->
+        <div class="wedding-card p-6">
+          <div class="flex items-center justify-between mb-4 pb-3 border-b border-stone-100">
+            <h3 class="font-serif font-bold text-base text-stone-900">Daftar Tugas Persiapan</h3>
+            <span class="text-xs text-stone-400">Centang kotak untuk menandai selesai</span>
+          </div>
+
+          <div id="checklistItemsList" class="space-y-2.5">
+            <!-- Rendered via JS -->
+          </div>
+        </div>
+      </section>
+
+      <!-- ===================================================================
+           TAB 7: RUNDOWN SAAT ACARA
+           =================================================================== -->
+      <section id="view-rundown" class="tab-view-container hidden space-y-6">
+        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div>
+            <span class="badge-gold text-xs mb-1">Run of Show Hari-H</span>
+            <h2 class="font-serif font-bold text-2xl sm:text-3xl text-stone-900">Rundown Acara Pernikahan</h2>
+            <p class="text-stone-500 text-xs sm:text-sm mt-1">
+              Panduan waktu detik demi detik yang rapi untuk koordinator WO, pembawa acara (MC), dan panitia keluarga.
+            </p>
+          </div>
+          <button onclick="app.printCurrentRundown()" class="btn-gold text-xs sm:text-sm py-2 px-4 shadow-md flex items-center gap-2">
+            <i class="fa-solid fa-print"></i> Cetak Rundown Resmi (PDF)
+          </button>
+        </div>
+
+        <!-- Event Selection Tabs -->
+        <div class="flex flex-wrap gap-2 p-1.5 bg-stone-100 rounded-xl">
+          <button class="rundown-tab-btn px-4 py-2 rounded-lg text-xs font-semibold transition" data-event="lamaran" onclick="app.switchRundownEvent('lamaran')">
+            1. Lamaran
+          </button>
+          <button class="rundown-tab-btn px-4 py-2 rounded-lg text-xs font-semibold transition" data-event="siraman" onclick="app.switchRundownEvent('siraman')">
+            2. Siraman & Midodareni
+          </button>
+          <button class="rundown-tab-btn px-4 py-2 rounded-lg text-xs font-semibold transition" data-event="akad" onclick="app.switchRundownEvent('akad')">
+            3. Akad Nikah
+          </button>
+          <button class="rundown-tab-btn px-4 py-2 rounded-lg text-xs font-bold bg-amber-100 text-amber-900 transition" data-event="resepsi" onclick="app.switchRundownEvent('resepsi')">
+            4. Resepsi Pernikahan
+          </button>
+        </div>
+
+        <!-- Timeline Container -->
+        <div class="wedding-card p-6 sm:p-8">
+          <div id="rundownItemsTimeline" class="mt-4">
+            <!-- Rendered via JS -->
+          </div>
+        </div>
+      </section>
+
+      <!-- ===================================================================
+           TAB 8: DAFTAR TAMU & RSVP MANAGER
+           =================================================================== -->
+      <section id="view-guests" class="tab-view-container hidden space-y-6">
+        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div>
+            <span class="badge-gold text-xs mb-1">Undangan & Konfirmasi Tamu</span>
+            <h2 class="font-serif font-bold text-2xl sm:text-3xl text-stone-900">Daftar Tamu & RSVP Manager</h2>
+            <p class="text-stone-500 text-xs sm:text-sm mt-1">
+              Kelola daftar undangan, kelompok keluarga/teman, nomor meja, dan kirim pesan undangan WhatsApp 1-klik!
+            </p>
+          </div>
+          <button onclick="app.openAddGuestModal()" class="btn-gold text-xs sm:text-sm py-2 px-4 shadow-md">
+            <i class="fa-solid fa-user-plus mr-1"></i> Tambah Tamu
+          </button>
+        </div>
+
+        <!-- Guest Stats Chips -->
+        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+          <div class="wedding-card p-3 text-center card-glow-blue">
+            <span class="text-[11px] text-sky-600 font-medium block">Total Tamu</span>
+            <div id="guestStatTotal" class="font-serif font-bold text-xl text-sky-900">10</div>
+          </div>
+          <div class="wedding-card p-3 text-center card-glow-emerald">
+            <span class="text-[11px] text-emerald-600 font-medium block">Pasti Hadir</span>
+            <div id="guestStatHadir" class="font-serif font-bold text-xl text-emerald-700">6</div>
+          </div>
+          <div class="wedding-card p-3 text-center card-glow-gold">
+            <span class="text-[11px] text-amber-600 font-medium block">Ragu-ragu</span>
+            <div id="guestStatRagu" class="font-serif font-bold text-xl text-amber-700">1</div>
+          </div>
+          <div class="wedding-card p-3 text-center card-glow-rose">
+            <span class="text-[11px] text-rose-600 font-medium block">Tidak Hadir</span>
+            <div id="guestStatTidak" class="font-serif font-bold text-xl text-rose-700">1</div>
+          </div>
+          <div class="wedding-card p-3 text-center card-glow-purple">
+            <span class="text-[11px] text-purple-600 font-medium block">Belum Respon</span>
+            <div id="guestStatPending" class="font-serif font-bold text-xl text-purple-700">2</div>
+          </div>
+          <div class="wedding-card p-3 text-center card-glow-rose">
+            <span class="text-[11px] text-rose-600 font-medium block">Und. Belum Kirim</span>
+            <div id="guestStatBelumKirim" class="font-serif font-bold text-xl text-rose-700">2</div>
+          </div>
+        </div>
+
+        <!-- Search & Filter Controls -->
+        <div class="wedding-card p-4 flex flex-wrap items-center justify-between gap-3">
+          <div class="flex-1 min-w-[240px]">
+            <input type="text" id="guestSearchInput" oninput="app.searchGuestQuery = this.value; app.renderGuests();" placeholder="Cari nama tamu, no hp, alamat..." class="form-input-luxury text-xs py-2 px-3">
+          </div>
+          <div class="flex items-center gap-2">
+            <select id="guestCatFilter" onchange="app.filterGuestCategory = this.value; app.renderGuests();" class="form-input-luxury text-xs py-2 px-3">
+              <option value="all">Semua Kategori Tamu</option>
+              <option value="Keluarga Mempelai Pria">Keluarga Pria</option>
+              <option value="Keluarga Mempelai Wanita">Keluarga Wanita</option>
+              <option value="Teman Pengantin Pria">Teman Pria</option>
+              <option value="Teman Pengantin Wanita">Teman Wanita</option>
+            </select>
+            <select id="guestRsvpFilter" onchange="app.filterGuestRsvp = this.value; app.renderGuests();" class="form-input-luxury text-xs py-2 px-3">
+              <option value="all">Semua Status RSVP</option>
+              <option value="HADIR">Hadir</option>
+              <option value="RAGU-RAGU">Ragu-ragu</option>
+              <option value="TIDAK HADIR">Tidak Hadir</option>
+              <option value="BELUM KONFIRMASI">Belum Konfirmasi</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Guest List Table -->
+        <div class="wedding-card overflow-hidden">
+          <div class="overflow-x-auto">
+            <table class="wedding-table">
+              <thead>
+                <tr>
+                  <th>Nama & Kontak</th>
+                  <th>Kategori</th>
+                  <th>Meja & Pax</th>
+                  <th class="text-center">Terkirim</th>
+                  <th class="text-center">Status RSVP</th>
+                  <th class="text-right">Aksi WhatsApp</th>
+                </tr>
+              </thead>
+              <tbody id="guestTableBody">
+                <!-- Rendered via JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===================================================================
+           TAB 9: BRIDESMAID & GROOMSMEN
+           =================================================================== -->
+      <section id="view-entourage" class="tab-view-container hidden space-y-6">
+        <div>
+          <span class="badge-gold text-xs mb-1">Pengiring Pengantin</span>
+          <h2 class="font-serif font-bold text-2xl sm:text-3xl text-stone-900">Bridesmaid & Groomsmen</h2>
+          <p class="text-stone-500 text-xs sm:text-sm mt-1">
+            Daftar sahabat pendamping mempelai pria dan wanita, pembagian tugas sakral, dan ukuran seragam baju.
+          </p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <!-- Bridesmaid Column -->
+          <div>
+            <div class="flex items-center justify-between mb-3">
+              <h3 class="font-serif font-bold text-lg text-stone-900 flex items-center gap-2">
+                <i class="fa-solid fa-person-dress text-rose-500"></i> Tim Bridesmaids
+              </h3>
+            </div>
+            <div id="bridesmaidListContainer" class="space-y-3">
+              <!-- Rendered via JS -->
+            </div>
+          </div>
+
+          <!-- Groomsmen Column -->
+          <div>
+            <div class="flex items-center justify-between mb-3">
+              <h3 class="font-serif font-bold text-lg text-stone-900 flex items-center gap-2">
+                <i class="fa-solid fa-user-tie text-amber-700"></i> Tim Groomsmen
+              </h3>
+            </div>
+            <div id="groomsmenListContainer" class="space-y-3">
+              <!-- Rendered via JS -->
+            </div>
+          </div>
+        </div>
+
+        <!-- Tips Memilih Bridesmaid Box -->
+        <div class="wedding-card p-6 bg-amber-50/50">
+          <h4 class="font-serif font-bold text-stone-900 text-base mb-2">Tips Pembagian Tugas Bridesmaid & Groomsmen</h4>
+          <ul class="text-xs text-stone-600 space-y-1.5 list-disc list-inside">
+            <li><strong>Bridesmaids:</strong> Menemani CPW saat makeup subuh, memegangi ekor gaun saat kirab, menjaga emergency kit (tisu, peniti, bedak touch up), serta menyambut tamu di meja buku registrasi.</li>
+            <li><strong>Groomsmen:</strong> Mengatur jalannya rombongan keluarga pria, membawa kotak hantaran/seserahan saat prosesi, serta bertanggung jawab menjaga kotak amplop dan parkir VIP.</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- ===================================================================
+           TAB 10: PERBANDINGAN VENDOR
+           =================================================================== -->
+      <section id="view-vendors" class="tab-view-container hidden space-y-6">
+        <div>
+          <span class="badge-gold text-xs mb-1">Matrix Evaluasi Vendor</span>
+          <h2 class="font-serif font-bold text-2xl sm:text-3xl text-stone-900">Perbandingan Vendor Berdampingan</h2>
+          <p class="text-stone-500 text-xs sm:text-sm mt-1">
+            Bandingkan penawaran fasilitas, harga, dan portofolio 3 vendor kandidat sebelum menandatangani SPK kontrak.
+          </p>
+        </div>
+
+        <!-- Category Pills Navigation -->
+        <div class="flex flex-wrap gap-2">
+          <button class="vendor-cat-pill bg-amber-600 text-white px-4 py-2 rounded-xl text-xs font-bold transition shadow-sm" data-cat="venue" onclick="app.switchVendorCategory('venue')">
+            <i class="fa-solid fa-building mr-1"></i> Venue / Gedung
+          </button>
+          <button class="vendor-cat-pill bg-white text-stone-700 px-4 py-2 rounded-xl text-xs font-semibold hover:bg-stone-50 border border-stone-200 transition" data-cat="catering" onclick="app.switchVendorCategory('catering')">
+            <i class="fa-solid fa-utensils mr-1"></i> Catering
+          </button>
+          <button class="vendor-cat-pill bg-white text-stone-700 px-4 py-2 rounded-xl text-xs font-semibold hover:bg-stone-50 border border-stone-200 transition" data-cat="photo" onclick="app.switchVendorCategory('photo')">
+            <i class="fa-solid fa-camera mr-1"></i> Foto & Video
+          </button>
+          <button class="vendor-cat-pill bg-white text-stone-700 px-4 py-2 rounded-xl text-xs font-semibold hover:bg-stone-50 border border-stone-200 transition" data-cat="mua" onclick="app.switchVendorCategory('mua')">
+            <i class="fa-solid fa-wand-magic-sparkles mr-1"></i> MUA Pengantin
+          </button>
+          <button class="vendor-cat-pill bg-white text-stone-700 px-4 py-2 rounded-xl text-xs font-semibold hover:bg-stone-50 border border-stone-200 transition" data-cat="wo" onclick="app.switchVendorCategory('wo')">
+            <i class="fa-solid fa-clipboard-user mr-1"></i> Wedding Organizer
+          </button>
+          <button class="vendor-cat-pill bg-white text-stone-700 px-4 py-2 rounded-xl text-xs font-semibold hover:bg-stone-50 border border-stone-200 transition" data-cat="decor" onclick="app.switchVendorCategory('decor')">
+            <i class="fa-solid fa-couch mr-1"></i> Dekorasi
+          </button>
+          <button class="vendor-cat-pill bg-white text-stone-700 px-4 py-2 rounded-xl text-xs font-semibold hover:bg-stone-50 border border-stone-200 transition" data-cat="attire" onclick="app.switchVendorCategory('attire')">
+            <i class="fa-solid fa-vest mr-1"></i> Busana Pengantin
+          </button>
+        </div>
+
+        <!-- Vendor Comparison Grid -->
+        <div id="vendorComparisonCards" class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <!-- Rendered via JS -->
+        </div>
+      </section>
+
+      <!-- ===================================================================
+           TAB 11: ADMINISTRASI KUA & SESERAHAN
+           =================================================================== -->
+      <section id="view-administration" class="tab-view-container hidden space-y-6">
+        <div>
+          <span class="badge-gold text-xs mb-1">Legalitas & Hantaran</span>
+          <h2 class="font-serif font-bold text-2xl sm:text-3xl text-stone-900">Administrasi KUA & List Seserahan</h2>
+          <p class="text-stone-500 text-xs sm:text-sm mt-1">
+            Checklist 14 syarat dokumen resmi KUA serta daftar belanja seserahan dengan link toko dan perbandingan harga.
+          </p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <!-- Checklist Dokumen KUA -->
+          <div class="wedding-card p-6">
+            <div class="flex items-center justify-between mb-4 pb-2 border-b border-stone-100">
+              <h3 class="font-serif font-bold text-lg text-stone-900 flex items-center gap-2">
+                <i class="fa-solid fa-stamp text-amber-600"></i> Syarat Administrasi KUA
+              </h3>
+              <span class="badge-gold text-xs">Simkah Kemenag</span>
+            </div>
+            <div id="adminRequirementsList" class="space-y-2.5 max-h-[580px] overflow-y-auto pr-1">
+              <!-- Rendered via JS -->
+            </div>
+          </div>
+
+          <!-- List Seserahan & Belanja -->
+          <div class="wedding-card p-6">
+            <div class="flex items-center justify-between mb-4 pb-2 border-b border-stone-100">
+              <h3 class="font-serif font-bold text-lg text-stone-900 flex items-center gap-2">
+                <i class="fa-solid fa-gift text-rose-500"></i> Daftar Seserahan & Hantaran
+              </h3>
+            </div>
+
+            <!-- Price Summary Chips -->
+            <div class="grid grid-cols-3 gap-2 mb-4 text-center">
+              <div class="bg-stone-50 p-2.5 rounded-xl border border-stone-200">
+                <span class="text-[10px] text-stone-500 block">Estimasi Opsi 1</span>
+                <strong id="seserahanEst1" class="text-xs text-stone-800">Rp 0</strong>
+              </div>
+              <div class="bg-stone-50 p-2.5 rounded-xl border border-stone-200">
+                <span class="text-[10px] text-stone-500 block">Estimasi Opsi 2</span>
+                <strong id="seserahanEst2" class="text-xs text-stone-800">Rp 0</strong>
+              </div>
+              <div class="bg-emerald-50 p-2.5 rounded-xl border border-emerald-200">
+                <span class="text-[10px] text-emerald-700 block">Total Realisasi</span>
+                <strong id="seserahanReal" class="text-xs text-emerald-800">Rp 0</strong>
+              </div>
+            </div>
+
+            <div class="overflow-x-auto max-h-[460px] overflow-y-auto">
+              <table class="wedding-table text-xs">
+                <thead>
+                  <tr>
+                    <th>Beli</th>
+                    <th>Kategori</th>
+                    <th>Barang Seserahan</th>
+                    <th>Opsi 1</th>
+                    <th>Opsi 2</th>
+                    <th>Realisasi</th>
+                  </tr>
+                </thead>
+                <tbody id="seserahanTableBody">
+                  <!-- Rendered via JS -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===================================================================
+           TAB 12: LIST LAGU PERNIKAHAN
+           =================================================================== -->
+      <section id="view-songs" class="tab-view-container hidden space-y-6">
+        <div>
+          <span class="badge-gold text-xs mb-1">Wedding Playlist Curated</span>
+          <h2 class="font-serif font-bold text-2xl sm:text-3xl text-stone-900">List Lagu Romantis Pernikahan</h2>
+          <p class="text-stone-500 text-xs sm:text-sm mt-1">
+            Pilihan lagu yang menciptakan suasana magis saat Ijab Kabul, Grand Entrance Kirab, dan First Dance.
+          </p>
+        </div>
+
+        <div id="weddingSongList" class="space-y-3">
+          <!-- Rendered via JS -->
+        </div>
+      </section>
+
+      <!-- ===================================================================
+           TAB 13: RANCANGAN BIAYA BERDASARKAN BUDGET (3jt - 100jt)
+           =================================================================== -->
+      <section id="view-cost_plans" class="tab-view-container hidden space-y-6">
+        <div>
+          <span class="badge-gold text-xs mb-1">Simulasi & Kalkulator Alokasi</span>
+          <h2 class="font-serif font-bold text-2xl sm:text-3xl text-stone-900">Rancangan Biaya Berdasarkan Budget</h2>
+          <p class="text-stone-500 text-xs sm:text-sm mt-1">
+            Panduan persentase dan estimasi angka riil untuk berbagai ukuran anggaran mulai dari 3 Juta hingga 100 Juta Rupiah.
+          </p>
+        </div>
+
+        <!-- Custom Interactive Budget Allocator -->
+        <div class="wedding-card p-6 card-gold-glow">
+          <h3 class="font-serif font-bold text-lg text-stone-900 mb-1">Kalkulator Alokasi Budget Kustom</h3>
+          <p class="text-stone-500 text-xs mb-4">Punya nominal budget tertentu? Masukkan angka di bawah, aplikasi akan otomatis memecah rasio emas pernikahan untuk Anda.</p>
+          
+          <div class="flex flex-col sm:flex-row gap-3 max-w-xl">
+            <input type="text" id="customBudgetInput" placeholder="Masukkan total anggaran, misal: 75000000" class="form-input-luxury text-sm flex-1">
+            <button onclick="app.calculateCustomBudget()" class="btn-gold text-xs py-2 px-5 whitespace-nowrap">
+              Hitung Alokasi
+            </button>
+          </div>
+
+          <div id="customBudgetResult" class="hidden">
+            <!-- Rendered via JS -->
+          </div>
+        </div>
+
+        <!-- Preset Budget Packages Grid -->
+        <div id="costPresetsContainer" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <!-- Rendered via JS -->
+        </div>
+      </section>
+
+      <!-- ===================================================================
+           TAB 14: BONUS & 180 PERTANYAAN PRA-NIKAH
+           =================================================================== -->
+      <section id="view-bonus" class="tab-view-container hidden space-y-6">
+        <div>
+          <span class="badge-gold text-xs mb-1">Materi Eksklusif Pembeli</span>
+          <h2 class="font-serif font-bold text-2xl sm:text-3xl text-stone-900">Bonus & 180 Pertanyaan Pra-Nikah</h2>
+          <p class="text-stone-500 text-xs sm:text-sm mt-1">
+            Topik deep-talk kritis yang wajib dibicarakan berdua sebelum ijab kabul: Keuangan, Mertua, Karir, dan Masa Depan.
+          </p>
+        </div>
+
+        <!-- Bonus Download Assets -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div class="wedding-card p-5 border-l-4 border-sky-500 card-glow-blue transition">
+            <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-sky-500 to-blue-600 text-white flex items-center justify-center text-xl mb-3 shadow-md">
+              <i class="fa-solid fa-globe"></i>
+            </div>
+            <span class="badge-blue text-[10px] mb-1">Eksklusif</span>
+            <h4 class="font-serif font-bold text-slate-900 text-base">Undangan Website VIP</h4>
+            <p class="text-slate-500 text-xs mt-1">Panduan & template digital landing page interaktif.</p>
+          </div>
+          <div class="wedding-card p-5 border-l-4 border-rose-500 card-glow-rose transition">
+            <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-rose-500 to-pink-500 text-white flex items-center justify-center text-xl mb-3 shadow-md">
+              <i class="fa-solid fa-palette"></i>
+            </div>
+            <span class="badge-rose text-[10px] mb-1">Design System</span>
+            <h4 class="font-serif font-bold text-slate-900 text-base">Moodboard Wedding</h4>
+            <p class="text-slate-500 text-xs mt-1">Koleksi palet warna: Champagne, Sage, Terracotta & Lavender.</p>
+          </div>
+          <div class="wedding-card p-5 border-l-4 border-emerald-500 card-glow-emerald transition">
+            <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-emerald-500 to-teal-600 text-white flex items-center justify-center text-xl mb-3 shadow-md">
+              <i class="fa-solid fa-route"></i>
+            </div>
+            <span class="badge-sage text-[10px] mb-1">Financial Life</span>
+            <h4 class="font-serif font-bold text-slate-900 text-base">Roadmap After Marriage</h4>
+            <p class="text-slate-500 text-xs mt-1">Panduan finansial rumah tangga tahun 1 hingga tahun ke-5.</p>
+          </div>
+        </div>
+
+        <!-- 180 Deep Talk Questions Cards -->
+        <div id="deepTalkQuestionsContainer" class="space-y-6">
+          <!-- Rendered via JS -->
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- =======================================================================
+       MODAL 1: PAYWALL / LYNK.ID EMAIL ACCESS GATE
+       ======================================================================= -->
+  <div id="paywallModal" class="modal-overlay">
+    <div class="modal-container p-6 sm:p-8 relative text-center">
+      <div class="w-16 h-16 rounded-3xl bg-gradient-to-tr from-rose-500 via-pink-500 to-amber-400 text-white flex items-center justify-center text-3xl mx-auto mb-4 shadow-xl">
+        <i class="fa-solid fa-ring"></i>
+      </div>
+
+      <span class="badge-rose text-xs mb-2"><i class="fa-solid fa-crown mr-1"></i>Akses Eksklusif Pelanggan Lynk.id</span>
+      <h2 class="font-serif font-bold text-2xl sm:text-3xl text-slate-900 leading-tight">
+        Selamat Datang di <span class="text-grad-rose">Wedding Planner Pro</span>
+      </h2>
+      <p class="text-slate-500 text-xs sm:text-sm mt-2 max-w-md mx-auto">
+        Silakan masukkan alamat email yang Anda gunakan saat checkout pembayaran di <strong>Lynk.id</strong> untuk membuka seluruh fitur aplikasi pernikahan impian Anda.
+      </p>
+
+      <form id="paywallForm" onsubmit="app.handlePaywallSubmit(event)" class="mt-6 space-y-3.5 text-left max-w-md mx-auto">
+        <div>
+          <label class="text-xs font-bold text-slate-700 block mb-1">Alamat Email Pembelian Lynk.id:</label>
+          <input type="email" id="paywallEmailInput" required placeholder="nama@email.com" class="form-input-luxury text-sm">
+        </div>
+
+        <div id="paywallCodeGroup" class="hidden">
+          <label class="text-xs font-bold text-slate-700 block mb-1">Kode Lisensi / Kupon (Opsional):</label>
+          <input type="text" id="paywallCodeInput" placeholder="Contoh: NIKAH2026" class="form-input-luxury text-sm uppercase font-mono">
+        </div>
+
+        <button type="submit" class="w-full btn-rose py-3.5 text-sm font-bold shadow-lg rounded-2xl flex items-center justify-center gap-2">
+          <i class="fa-solid fa-lock-open mr-1"></i> Buka Akses Pernikahan Saya
+        </button>
+
+        <div id="demoOptionContainer" class="flex items-center justify-center pt-2 text-xs">
+          <button type="button" id="btnTryDemo" onclick="app.tryDemoMode()" class="text-rose-600 hover:text-rose-700 hover:underline font-bold flex items-center gap-1.5 transition">
+            <i class="fa-solid fa-sparkles text-[11px]"></i> Coba Versi Preview Demo (2 Menit)
+          </button>
+          <div id="demoExpiredNotice" class="hidden text-amber-800 bg-amber-50/90 border border-amber-200/90 rounded-xl px-3.5 py-2 text-xs flex items-center justify-center gap-2 shadow-sm">
+            <i class="fa-solid fa-hourglass-end text-rose-500"></i>
+            <span>Masa Uji Coba Demo 2 Menit Telah Habis</span>
+          </div>
+        </div>
+      </form>
+
+      <div class="mt-6 pt-4 border-t border-slate-100 text-xs text-slate-400">
+        Belum membeli aplikasi ini? 
+        <a id="paywallBuyLink" href="https://lynk.id/weddingplanner/nikah-impian" target="_blank" class="text-rose-600 font-bold hover:underline">
+          Beli Sekarang di Lynk.id &rarr;
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- =======================================================================
+       MODAL: DEMO EXPIRED LOCKOUT (ANTI-ABUSE 2 MINUTES)
+       ======================================================================= -->
+  <div id="demoExpiredModal" class="modal-overlay" style="z-index: 9999;">
+    <div class="modal-container p-6 sm:p-8 relative text-center max-w-lg mx-auto shadow-2xl border-2 border-rose-300">
+      
+      <!-- Icon Glow with Ping Effect -->
+      <div class="relative w-20 h-20 mx-auto mb-4">
+        <div class="absolute inset-0 rounded-full bg-rose-500/20 animate-ping" style="animation-duration: 2.5s;"></div>
+        <div class="relative w-20 h-20 rounded-full bg-gradient-to-tr from-rose-600 via-pink-600 to-amber-500 text-white flex items-center justify-center text-3xl shadow-xl border-2 border-white">
+          <i class="fa-solid fa-hourglass-end animate-pulse"></i>
+        </div>
+      </div>
+
+      <span class="inline-block bg-rose-100 text-rose-700 font-bold px-3 py-1 rounded-full text-xs mb-2 tracking-wide uppercase">
+        <i class="fa-solid fa-lock mr-1.5"></i>Waktu Uji Coba Demo Selesai
+      </span>
+
+      <h2 class="font-serif font-bold text-2xl sm:text-3xl text-slate-900 leading-tight">
+        Masa Preview 2 Menit <span class="text-grad-rose">Berakhir</span>
+      </h2>
+
+      <p class="text-slate-600 text-xs sm:text-sm mt-3 leading-relaxed">
+        Semoga Anda menyukai kemudahan dan kelengkapan 14 modul <strong>Wedding Planner Pro</strong>! Perencanaan pernikahan membutuhkan ketenangan dan penyimpanan data permanen. Dapatkan akses lisensi resmi Anda sekarang untuk membuka seluruh fitur selamanya.
+      </p>
+
+      <!-- Key Benefits recap -->
+      <div class="grid grid-cols-2 gap-2 my-5 text-left text-xs bg-rose-50/70 p-3.5 rounded-2xl border border-rose-100">
+        <div class="flex items-center gap-2 text-stone-700 font-medium">
+          <i class="fa-solid fa-circle-check text-rose-500 text-sm"></i> Simpan Data Permanen
+        </div>
+        <div class="flex items-center gap-2 text-stone-700 font-medium">
+          <i class="fa-solid fa-circle-check text-rose-500 text-sm"></i> Cetak Rundown PDF
+        </div>
+        <div class="flex items-center gap-2 text-stone-700 font-medium">
+          <i class="fa-solid fa-circle-check text-rose-500 text-sm"></i> Undangan WhatsApp
+        </div>
+        <div class="flex items-center gap-2 text-stone-700 font-medium">
+          <i class="fa-solid fa-circle-check text-rose-500 text-sm"></i> Bonus 180 Deep Talk
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="space-y-2.5">
+        <a id="demoExpiredBuyBtn" href="https://lynk.id/weddingplanner/nikah-impian" target="_blank" class="w-full btn-rose py-3.5 text-sm font-bold shadow-xl rounded-2xl flex items-center justify-center gap-2 hover:scale-[1.01] transition">
+          <i class="fa-solid fa-bag-shopping mr-1"></i> Beli Akses Penuh di Lynk.id Sekarang &rarr;
+        </a>
+
+        <button type="button" onclick="app.openPaywallFromExpired()" class="w-full py-2.5 text-xs text-slate-500 hover:text-rose-600 font-semibold transition flex items-center justify-center gap-1.5">
+          <i class="fa-solid fa-key text-[11px]"></i> Sudah Beli di Lynk.id? Masukkan Email Lisensi
+        </button>
+      </div>
+
+      <p class="text-[11px] text-slate-400 mt-4">
+        <i class="fa-solid fa-shield-halved mr-1"></i> Satu kali pembelian, akses aktif selamanya tanpa biaya bulanan.
+      </p>
+    </div>
+  </div>
+
+  <!-- =======================================================================
+       MODAL: KONFIRMASI KELUAR MEWAH (LUXURY LOGOUT CONFIRMATION)
+       ======================================================================= -->
+  <div id="logoutConfirmModal" class="modal-overlay" style="z-index: 9999;">
+    <div class="modal-container p-6 sm:p-7 relative text-center max-w-md mx-auto shadow-2xl border border-rose-200">
+      
+      <!-- Icon Glow with Ping Effect -->
+      <div class="relative w-16 h-16 mx-auto mb-4">
+        <div class="absolute inset-0 rounded-full bg-rose-400/20 animate-ping" style="animation-duration: 2.5s;"></div>
+        <div class="relative w-16 h-16 rounded-full bg-gradient-to-tr from-rose-500 via-pink-500 to-amber-500 text-white flex items-center justify-center text-2xl shadow-lg border-2 border-white">
+          <i class="fa-solid fa-door-open"></i>
+        </div>
+      </div>
+
+      <span class="inline-block bg-rose-50 text-rose-700 border border-rose-200 font-bold px-3 py-1 rounded-full text-[11px] mb-2 tracking-wide uppercase">
+        <i class="fa-solid fa-arrow-right-from-bracket mr-1"></i>Konfirmasi Keluar Sesi
+      </span>
+
+      <h3 class="font-serif font-bold text-xl sm:text-2xl text-slate-900 leading-tight">
+        Yakin Ingin <span class="text-grad-rose">Keluar?</span>
+      </h3>
+
+      <!-- Dynamic Message depending on demo vs buyer -->
+      <div id="logoutDemoInfoBox" class="my-4 p-3.5 rounded-2xl bg-amber-50 border border-amber-200 text-left text-xs text-amber-900 space-y-1.5 shadow-sm">
+        <div class="flex items-center gap-2 font-bold text-amber-800">
+          <i class="fa-solid fa-circle-pause text-rose-500 text-sm"></i>
+          <span>Waktu Demo Akan Dijeda (Pause)</span>
+        </div>
+        <p class="text-stone-600 leading-relaxed">
+          Sisa waktu Anda saat ini: <strong id="logoutRemainingTimeBadge" class="text-rose-600 font-mono font-bold text-sm bg-rose-100/70 px-2 py-0.5 rounded-md">02:00</strong>. Waktu berhenti sekarang dan akan <strong>jalan mundur lagi</strong> saat Anda masuk kembali.
+        </p>
+      </div>
+
+      <div id="logoutBuyerInfoBox" class="hidden my-4 p-3.5 rounded-2xl bg-emerald-50 border border-emerald-200 text-left text-xs text-emerald-900 shadow-sm">
+        <div class="flex items-center gap-2 font-bold text-emerald-800">
+          <i class="fa-solid fa-shield-check text-emerald-600 text-sm"></i>
+          <span>Data Pernikahan Tersimpan Aman</span>
+        </div>
+        <p class="text-stone-600 mt-1 leading-relaxed">
+          Seluruh data yang telah Anda isi tetap tersimpan di perangkat ini. Anda dapat masuk kembali kapan saja menggunakan email pembelian Anda.
+        </p>
+      </div>
+
+      <!-- Action Buttons (Batal vs Ya, Keluar) -->
+      <div class="grid grid-cols-2 gap-3 mt-5">
+        <button type="button" onclick="app.closeLogoutModal()" class="w-full py-2.5 px-4 rounded-xl border border-stone-200 bg-stone-100 hover:bg-stone-200 text-stone-700 font-bold text-xs transition flex items-center justify-center gap-1.5 cursor-pointer">
+          <i class="fa-solid fa-xmark"></i> Batal
+        </button>
+        <button type="button" onclick="app.confirmLogout()" class="w-full py-2.5 px-4 rounded-xl bg-gradient-to-r from-rose-500 to-red-600 hover:from-rose-600 hover:to-red-700 text-white font-bold text-xs shadow-lg hover:shadow-rose-500/25 transition flex items-center justify-center gap-1.5 cursor-pointer">
+          <i class="fa-solid fa-arrow-right-from-bracket"></i> Ya, Keluar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- =======================================================================
+       MODAL 2: ADD BUDGET ITEM MODAL
+       ======================================================================= -->
+  <div id="addBudgetModal" class="modal-overlay">
+    <div class="modal-container p-6 relative">
+      <div class="flex items-center justify-between pb-3 border-b border-stone-100 mb-4">
+        <h3 class="font-serif font-bold text-lg text-stone-900">Tambah Item Anggaran Baru</h3>
+        <button type="button" class="modal-close-btn text-stone-400 hover:text-stone-600"><i class="fa-solid fa-xmark text-lg"></i></button>
+      </div>
+
+      <form id="addBudgetForm" onsubmit="app.submitAddBudget(event)" class="space-y-3">
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="text-xs font-semibold text-stone-700 block mb-1">Rangkaian Acara:</label>
+            <select id="addBudgetEvent" class="form-input-luxury text-xs">
+              <option value="Akad & Resepsi">Akad & Resepsi</option>
+              <option value="Lamaran">Lamaran</option>
+              <option value="Honeymoon">Honeymoon</option>
+            </select>
+          </div>
+          <div>
+            <label class="text-xs font-semibold text-stone-700 block mb-1">Kategori:</label>
+            <select id="addBudgetCategory" class="form-input-luxury text-xs">
+              <option value="Catering">Catering</option>
+              <option value="Venue">Venue</option>
+              <option value="Decor">Decor</option>
+              <option value="Attire">Attire / Gaun</option>
+              <option value="Photo/Video">Photo/Video</option>
+              <option value="Entertainment">Entertainment</option>
+              <option value="WO">Wedding Organizer</option>
+              <option value="Souvenir">Souvenir</option>
+              <option value="Undangan">Undangan</option>
+              <option value="Admin">Admin & KUA</option>
+              <option value="Adat">Prosesi Adat</option>
+              <option value="Lain-lain">Lain-lain</option>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <label class="text-xs font-semibold text-stone-700 block mb-1">Nama Keperluan / Item:</label>
+          <input type="text" id="addBudgetName" required placeholder="Contoh: Sewa Kursi Tiffany 100 pcs" class="form-input-luxury text-xs">
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="text-xs font-semibold text-stone-700 block mb-1">Nama Vendor (Opsional):</label>
+            <input type="text" id="addBudgetVendor" placeholder="Contoh: Almahera Decor" class="form-input-luxury text-xs">
+          </div>
+          <div>
+            <label class="text-xs font-semibold text-stone-700 block mb-1">Kontak Person / WA:</label>
+            <input type="text" id="addBudgetPhone" placeholder="0812-xxxx-xxxx" class="form-input-luxury text-xs">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-3 gap-3">
+          <div>
+            <label class="text-xs font-semibold text-stone-700 block mb-1">Alokasi Rencana (Rp):</label>
+            <input type="number" id="addBudgetPlanned" required placeholder="5000000" class="form-input-luxury text-xs">
+          </div>
+          <div>
+            <label class="text-xs font-semibold text-stone-700 block mb-1">Kontrak Real (Rp):</label>
+            <input type="number" id="addBudgetActual" placeholder="5000000" class="form-input-luxury text-xs">
+          </div>
+          <div>
+            <label class="text-xs font-semibold text-stone-700 block mb-1">Sudah Dibayar (Rp):</label>
+            <input type="number" id="addBudgetPaid" value="0" class="form-input-luxury text-xs">
+          </div>
+        </div>
+
+        <div class="pt-3">
+          <button type="submit" class="w-full btn-gold text-xs py-2.5 font-bold">
+            Simpan ke Budget Tracker
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- =======================================================================
+       MODAL 3: ADD TASK CHECKLIST MODAL
+       ======================================================================= -->
+  <div id="addTaskModal" class="modal-overlay">
+    <div class="modal-container p-6 relative">
+      <div class="flex items-center justify-between pb-3 border-b border-stone-100 mb-4">
+        <h3 class="font-serif font-bold text-lg text-stone-900">Tambah Tugas Persiapan Baru</h3>
+        <button type="button" class="modal-close-btn text-stone-400 hover:text-stone-600"><i class="fa-solid fa-xmark text-lg"></i></button>
+      </div>
+
+      <form id="addTaskForm" onsubmit="app.submitAddTask(event)" class="space-y-3">
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="text-xs font-semibold text-stone-700 block mb-1">Fase / Acara:</label>
+            <select id="addTaskStage" class="form-input-luxury text-xs">
+              <option value="Akad">Akad Nikah</option>
+              <option value="Resepsi">Resepsi</option>
+              <option value="Lamaran">Lamaran</option>
+              <option value="Honeymoon">Honeymoon</option>
+            </select>
+          </div>
+          <div>
+            <label class="text-xs font-semibold text-stone-700 block mb-1">Prioritas:</label>
+            <select id="addTaskPriority" class="form-input-luxury text-xs">
+              <option value="Tinggi">Tinggi</option>
+              <option value="Sedang">Sedang</option>
+              <option value="Rendah">Rendah</option>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <label class="text-xs font-semibold text-stone-700 block mb-1">Nama Tugas Persiapan:</label>
+          <input type="text" id="addTaskName" required placeholder="Contoh: Booking Hotel untuk Keluarga Besar" class="form-input-luxury text-xs">
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="text-xs font-semibold text-stone-700 block mb-1">Vendor Terkait:</label>
+            <input type="text" id="addTaskVendor" placeholder="Nama vendor / PIC" class="form-input-luxury text-xs">
+          </div>
+          <div>
+            <label class="text-xs font-semibold text-stone-700 block mb-1">Target Selesai (Deadline):</label>
+            <input type="date" id="addTaskDate" required class="form-input-luxury text-xs">
+          </div>
+        </div>
+
+        <div>
+          <label class="text-xs font-semibold text-stone-700 block mb-1">Catatan Tambahan:</label>
+          <input type="text" id="addTaskNotes" placeholder="Detail catatan khusus..." class="form-input-luxury text-xs">
+        </div>
+
+        <div class="pt-3">
+          <button type="submit" class="w-full btn-gold text-xs py-2.5 font-bold">
+            Simpan Tugas ke Checklist
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- =======================================================================
+       MODAL 4: ADD GUEST MODAL
+       ======================================================================= -->
+  <div id="addGuestModal" class="modal-overlay">
+    <div class="modal-container p-6 relative">
+      <div class="flex items-center justify-between pb-3 border-b border-stone-100 mb-4">
+        <h3 class="font-serif font-bold text-lg text-stone-900">Tambah Tamu Undangan Baru</h3>
+        <button type="button" class="modal-close-btn text-stone-400 hover:text-stone-600"><i class="fa-solid fa-xmark text-lg"></i></button>
+      </div>
+
+      <form id="addGuestForm" onsubmit="app.submitAddGuest(event)" class="space-y-3">
+        <div>
+          <label class="text-xs font-semibold text-stone-700 block mb-1">Nama Lengkap Tamu:</label>
+          <input type="text" id="addGuestName" required placeholder="Contoh: Dr. Hendra Gunawan, M.Si" class="form-input-luxury text-xs">
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="text-xs font-semibold text-stone-700 block mb-1">No. WhatsApp / HP:</label>
+            <input type="text" id="addGuestPhone" required placeholder="0812-xxxx-xxxx" class="form-input-luxury text-xs">
+          </div>
+          <div>
+            <label class="text-xs font-semibold text-stone-700 block mb-1">Kategori Tamu:</label>
+            <select id="addGuestCategory" class="form-input-luxury text-xs">
+              <option value="Keluarga Mempelai Pria">Keluarga Mempelai Pria</option>
+              <option value="Keluarga Mempelai Wanita">Keluarga Mempelai Wanita</option>
+              <option value="Teman Pengantin Pria">Teman Pengantin Pria</option>
+              <option value="Teman Pengantin Wanita">Teman Pengantin Wanita</option>
+              <option value="Rekan Kerja / VIP">Rekan Kerja / VIP</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="text-xs font-semibold text-stone-700 block mb-1">Nomor Meja / Area:</label>
+            <input type="text" id="addGuestTable" placeholder="Contoh: Meja 05 atau VIP" class="form-input-luxury text-xs">
+          </div>
+          <div>
+            <label class="text-xs font-semibold text-stone-700 block mb-1">Jumlah Pax (+1):</label>
+            <input type="number" id="addGuestPax" value="2" min="1" max="10" class="form-input-luxury text-xs">
+          </div>
+        </div>
+
+        <div>
+          <label class="text-xs font-semibold text-stone-700 block mb-1">Alamat / Domisili:</label>
+          <input type="text" id="addGuestAddress" placeholder="Contoh: Bandar Lampung" class="form-input-luxury text-xs">
+        </div>
+
+        <div class="pt-3">
+          <button type="submit" class="w-full btn-gold text-xs py-2.5 font-bold">
+            Simpan Tamu ke Daftar
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- =======================================================================
+       MODAL 5: EDIT PROFIL PASANGAN & TANGGAL PERNIKAHAN
+       ======================================================================= -->
+  <div id="editProfileModal" class="modal-overlay">
+    <div class="modal-container p-6 relative">
+      <div class="flex items-center justify-between pb-3 border-b border-stone-100 mb-4">
+        <div>
+          <h3 class="font-serif font-bold text-lg text-stone-900">Ubah Profil & Nama Pasangan</h3>
+          <p class="text-xs text-stone-500">Sesuaikan nama kedua mempelai, tanggal acara & lokasi venue</p>
+        </div>
+        <button type="button" class="modal-close-btn text-stone-400 hover:text-stone-600"><i class="fa-solid fa-xmark text-lg"></i></button>
+      </div>
+
+      <form id="editProfileForm" onsubmit="app.submitEditProfile(event)" class="space-y-3.5">
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="text-xs font-semibold text-stone-700 block mb-1">
+              <i class="fa-solid fa-mars text-blue-500 mr-1"></i>Nama Pengantin Pria (CPP):
+            </label>
+            <input type="text" id="editProfileCpp" required placeholder="Contoh: Anggah" class="form-input-luxury text-sm font-semibold text-stone-900">
+          </div>
+          <div>
+            <label class="text-xs font-semibold text-stone-700 block mb-1">
+              <i class="fa-solid fa-venus text-rose-500 mr-1"></i>Nama Pengantin Wanita (CPW):
+            </label>
+            <input type="text" id="editProfileCpw" required placeholder="Contoh: Chintya" class="form-input-luxury text-sm font-semibold text-stone-900">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="text-xs font-semibold text-stone-700 block mb-1">
+              <i class="fa-regular fa-calendar-check text-amber-600 mr-1"></i>Tanggal Pernikahan:
+            </label>
+            <input type="date" id="editProfileDate" required class="form-input-luxury text-sm">
+          </div>
+          <div>
+            <label class="text-xs font-semibold text-stone-700 block mb-1">
+              <i class="fa-regular fa-clock text-amber-600 mr-1"></i>Waktu Akad / Mulai:
+            </label>
+            <input type="time" id="editProfileTime" value="08:00" class="form-input-luxury text-sm">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="text-xs font-semibold text-stone-700 block mb-1">Nama Tempat / Venue:</label>
+            <input type="text" id="editProfileVenue" placeholder="Contoh: Villa Bukit Randu" class="form-input-luxury text-xs">
+          </div>
+          <div>
+            <label class="text-xs font-semibold text-stone-700 block mb-1">Kota Penyelenggaraan:</label>
+            <input type="text" id="editProfileCity" placeholder="Contoh: Bandar Lampung" class="form-input-luxury text-xs">
+          </div>
+        </div>
+
+        <div class="pt-3">
+          <button type="submit" class="w-full btn-gold text-xs py-3 font-bold shadow-md">
+            <i class="fa-solid fa-check mr-1.5"></i> Simpan Perubahan Profil
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="assets/js/data.js"></script>
+  <script src="assets/js/auth.js"></script>
+  <script src="assets/js/export.js"></script>
+  <script src="assets/js/app.js"></script>
+
+  <!-- Inline Auth Handlers -->
+  <script>
+    WeddingApp.prototype.handlePaywallSubmit = async function(e) {
+      e.preventDefault();
+      const email = document.getElementById("paywallEmailInput").value;
+      const code = document.getElementById("paywallCodeInput").value;
+
+      const submitBtn = e.target.querySelector("button[type='submit']");
+      const origText = submitBtn.innerHTML;
+      submitBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin mr-1"></i> Memvalidasi...`;
+      submitBtn.disabled = true;
+
+      try {
+        const res = await auth.loginWithEmail(email, code);
+        if (res.success) {
+          document.getElementById("paywallModal").classList.remove("active");
+          this.updateUserSessionUI();
+          this.showToast(res.message);
+          this.triggerConfetti();
+        } else {
+          alert(res.message);
+        }
+      } finally {
+        submitBtn.innerHTML = origText;
+        submitBtn.disabled = false;
+      }
+    };
+
+    WeddingApp.prototype.logoutUser = function() {
+      if (confirm("Keluar dari sesi akun saat ini?")) {
+        auth.logout();
+        location.reload();
+      }
+    };
+
+    WeddingApp.prototype.handleRestoreFile = function(input) {
+      if (!input.files || input.files.length === 0) return;
+      const file = input.files[0];
+      ExportManager.restoreData(file, (success, result) => {
+        if (success) {
+          this.data = result;
+          this.saveData();
+          this.render();
+          this.showToast("Data pernikahan berhasil dipulihkan dari file backup!");
+          this.triggerConfetti();
+        } else {
+          alert("Gagal restore: " + result);
+        }
+      });
+      input.value = "";
+    };
+  </script>
+
+  <!-- =======================================================================
+       FLOATING DEMO COUNTDOWN WIDGET (Always visible on all screens during Demo)
+       ======================================================================= -->
+  <div id="floatingDemoCountdownWidget" class="hidden fixed bottom-6 right-6 z-50 flex items-center gap-3 bg-stone-900/95 backdrop-blur-md text-white px-4 py-3 rounded-2xl shadow-2xl border-2 border-rose-500/60 transition-all duration-300 hover:scale-105">
+    <div class="relative flex items-center justify-center">
+      <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-rose-600 via-pink-600 to-amber-500 flex items-center justify-center text-white text-lg shadow-md">
+        <i class="fa-solid fa-stopwatch animate-pulse"></i>
+      </div>
+      <span class="absolute -top-1 -right-1 flex h-3 w-3">
+        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
+        <span class="relative inline-flex rounded-full h-3 w-3 bg-rose-500"></span>
+      </span>
+    </div>
+    <div class="text-left">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-rose-300 flex items-center gap-1">
+        <span>Sisa Waktu Demo</span>
+        <span id="demoPulseDot" class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span>
+      </div>
+      <div id="floatingDemoTimer" class="font-mono text-xl font-black text-amber-300 tracking-wider leading-none mt-0.5">
+        02:00
+      </div>
+    </div>
+    <a id="floatingDemoBuyBtn" href="https://lynk.id/weddingplanner/nikah-impian" target="_blank" class="ml-1 bg-gradient-to-r from-rose-500 to-pink-500 hover:from-rose-600 hover:to-pink-600 text-white font-bold text-xs px-3.5 py-2 rounded-xl shadow-lg transition flex items-center gap-1 whitespace-nowrap">
+      <span>Beli Akses</span>
+      <i class="fa-solid fa-arrow-right text-[10px]"></i>
+    </a>
+  </div>
+</body>
+</html>

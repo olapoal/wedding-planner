@@ -1,0 +1,1419 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Portal Admin &mdash; Kelola Lisensi Pembeli Wedding Planner Pro</title>
+  <!-- Google Fonts: Plus Jakarta Sans & Playfair Display -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <!-- Font Awesome 6.5 -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  
+  <style>
+    :root {
+      --bg-body: #0B0F19;
+      --surface: #111827;
+      --surface-card: #1E293B;
+      --surface-input: #0F172A;
+      --primary: #F43F5E;
+      --primary-gradient: linear-gradient(135deg, #F43F5E 0%, #E11D48 100%);
+      --accent-rose: #FB7185;
+      --accent-gold: #F59E0B;
+      --accent-green: #10B981;
+      --accent-blue: #38BDF8;
+      --text-main: #F8FAFC;
+      --text-muted: #94A3B8;
+      --text-white: #FFFFFF;
+      --border: #334155;
+      --border-light: rgba(255, 255, 255, 0.08);
+      --radius-sm: 8px;
+      --radius-md: 12px;
+      --radius-lg: 18px;
+      --radius-full: 9999px;
+      --shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.5);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg-body);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      top: -150px;
+      right: -150px;
+      width: 500px;
+      height: 500px;
+      background: radial-gradient(circle, rgba(244, 63, 94, 0.12) 0%, rgba(0, 0, 0, 0) 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* TOP NAVBAR */
+    nav {
+      background: rgba(17, 24, 39, 0.92);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border-light);
+      padding: 14px 28px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      text-decoration: none;
+      color: inherit;
+    }
+
+    .brand-logo-wrap {
+      width: 42px;
+      height: 42px;
+      border-radius: var(--radius-md);
+      background: linear-gradient(135deg, #F43F5E 0%, #FB7185 50%, #F59E0B 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 20px;
+      box-shadow: 0 4px 14px rgba(244, 63, 94, 0.35);
+    }
+
+    .brand-text h1 {
+      font-size: 16px;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+      background: linear-gradient(135deg, #FFFFFF 0%, #CBD5E1 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .brand-text p {
+      font-size: 11.5px;
+      color: var(--text-muted);
+    }
+
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .btn-nav {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid var(--border);
+      color: var(--text-main);
+      padding: 8px 16px;
+      border-radius: var(--radius-sm);
+      font-size: 12.5px;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s ease;
+    }
+
+    .btn-nav:hover {
+      background: rgba(255, 255, 255, 0.12);
+      border-color: rgba(255, 255, 255, 0.25);
+    }
+
+    .btn-nav-danger {
+      color: #F87171;
+      border-color: rgba(239, 68, 68, 0.3);
+    }
+
+    .btn-nav-danger:hover {
+      background: rgba(239, 68, 68, 0.15);
+      border-color: #EF4444;
+    }
+
+    /* CONTAINER */
+    .container {
+      max-width: 1200px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 28px 20px 60px;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* ================= VIEW 1: LOGIN ================= */
+    #viewLogin {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: calc(100vh - 120px);
+      padding: 20px;
+    }
+
+    .login-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 38px 32px;
+      max-width: 440px;
+      width: 100%;
+      text-align: center;
+      box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.7);
+    }
+
+    .login-icon-wrap {
+      width: 64px;
+      height: 64px;
+      border-radius: 20px;
+      background: linear-gradient(135deg, rgba(244, 63, 94, 0.2) 0%, rgba(245, 158, 11, 0.2) 100%);
+      border: 1.5px solid rgba(244, 63, 94, 0.4);
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 26px;
+      margin: 0 auto 18px;
+    }
+
+    .login-title {
+      font-size: 22px;
+      font-weight: 800;
+      margin-bottom: 6px;
+      color: var(--text-white);
+    }
+
+    .login-desc {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-bottom: 24px;
+      line-height: 1.5;
+    }
+
+    .form-group {
+      text-align: left;
+      margin-bottom: 18px;
+    }
+
+    .form-label {
+      display: block;
+      font-size: 12px;
+      font-weight: 700;
+      margin-bottom: 6px;
+      color: #CBD5E1;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .input-wrap {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .input-field {
+      width: 100%;
+      background: var(--surface-input);
+      border: 1.5px solid var(--border);
+      color: var(--text-white);
+      padding: 11px 14px;
+      border-radius: var(--radius-sm);
+      font-size: 13.5px;
+      outline: none;
+      transition: all 0.2s ease;
+    }
+
+    .input-field:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(244, 63, 94, 0.2);
+    }
+
+    .btn-eye {
+      position: absolute;
+      right: 12px;
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 15px;
+    }
+
+    .btn-eye:hover {
+      color: var(--text-white);
+    }
+
+    .btn-primary {
+      width: 100%;
+      background: var(--primary-gradient);
+      color: white;
+      border: none;
+      padding: 12px 20px;
+      border-radius: var(--radius-sm);
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.2s ease;
+      box-shadow: 0 8px 20px -4px rgba(244, 63, 94, 0.4);
+    }
+
+    .btn-primary:hover {
+      filter: brightness(1.1);
+      transform: translateY(-1px);
+    }
+
+    .alert-error {
+      background: rgba(239, 68, 68, 0.12);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      color: #FCA5A5;
+      padding: 10px 14px;
+      border-radius: var(--radius-sm);
+      font-size: 12px;
+      margin-top: 14px;
+      display: none;
+    }
+
+    /* ================= VIEW 2: DASHBOARD ================= */
+    #viewDashboard {
+      display: none;
+    }
+
+    /* METRICS GRID */
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .metric-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 18px 20px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      box-shadow: var(--shadow);
+    }
+
+    .metric-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      flex-shrink: 0;
+    }
+
+    .metric-rose .metric-icon {
+      background: rgba(244, 63, 94, 0.15);
+      color: #FB7185;
+      border: 1px solid rgba(244, 63, 94, 0.3);
+    }
+
+    .metric-green .metric-icon {
+      background: rgba(16, 185, 129, 0.15);
+      color: #34D399;
+      border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+
+    .metric-purple .metric-icon {
+      background: rgba(139, 92, 246, 0.15);
+      color: #A78BFA;
+      border: 1px solid rgba(139, 92, 246, 0.3);
+    }
+
+    .metric-gold .metric-icon {
+      background: rgba(245, 158, 11, 0.15);
+      color: #FBBF24;
+      border: 1px solid rgba(245, 158, 11, 0.3);
+    }
+
+    .metric-info h4 {
+      font-size: 12px;
+      color: var(--text-muted);
+      font-weight: 600;
+      margin-bottom: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .metric-value {
+      font-size: 24px;
+      font-weight: 800;
+      color: var(--text-white);
+    }
+
+    /* CARDS */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      margin-bottom: 24px;
+      box-shadow: var(--shadow);
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 18px;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .card-title {
+      font-size: 16px;
+      font-weight: 800;
+      color: var(--text-white);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* FORMS */
+    .add-buyer-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)) auto;
+      gap: 14px;
+      align-items: flex-end;
+    }
+
+    .btn-add {
+      background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+      color: white;
+      border: none;
+      padding: 11px 22px;
+      border-radius: var(--radius-sm);
+      font-size: 13.5px;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      height: 44px;
+      white-space: nowrap;
+      transition: all 0.2s ease;
+      box-shadow: 0 4px 14px rgba(16, 185, 129, 0.3);
+    }
+
+    .btn-add:hover {
+      filter: brightness(1.1);
+      transform: translateY(-1px);
+    }
+
+    /* TABLE */
+    .table-toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 14px;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .search-wrap {
+      position: relative;
+      max-width: 380px;
+      width: 100%;
+    }
+
+    .search-input {
+      width: 100%;
+      background: var(--surface-input);
+      border: 1px solid var(--border);
+      color: var(--text-white);
+      padding: 9px 12px 9px 36px;
+      border-radius: var(--radius-sm);
+      font-size: 13px;
+      outline: none;
+    }
+
+    .search-input:focus {
+      border-color: var(--primary);
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+      font-size: 13px;
+    }
+
+    .table-responsive {
+      overflow-x: auto;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      background: var(--surface-card);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 13px;
+    }
+
+    thead th {
+      background: rgba(15, 23, 42, 0.7);
+      padding: 12px 16px;
+      font-size: 11.5px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      color: #94A3B8;
+      border-bottom: 1px solid var(--border);
+    }
+
+    tbody td {
+      padding: 13px 16px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+      color: #CBD5E1;
+    }
+
+    tbody tr:last-child td {
+      border-bottom: none;
+    }
+
+    tbody tr:hover td {
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    .badge-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 3px 10px;
+      border-radius: var(--radius-full);
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .badge-status-active {
+      background: rgba(16, 185, 129, 0.15);
+      color: #34D399;
+      border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+
+    .badge-status-revoked {
+      background: rgba(239, 68, 68, 0.15);
+      color: #F87171;
+      border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+
+    .btn-action-icon {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      padding: 6px;
+      border-radius: 6px;
+      transition: all 0.15s ease;
+      font-size: 13px;
+    }
+
+    .btn-action-icon:hover {
+      color: var(--text-white);
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    .btn-action-delete:hover {
+      color: #F87171;
+      background: rgba(239, 68, 68, 0.15);
+    }
+
+    /* CODE BOX */
+    .code-box {
+      background: #090D16;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 12px 16px;
+      font-family: monospace;
+      font-size: 13px;
+      color: #38BDF8;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      word-break: break-all;
+    }
+
+    /* TOAST */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: #1E293B;
+      color: white;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      padding: 12px 20px;
+      border-radius: var(--radius-md);
+      font-size: 13.5px;
+      font-weight: 600;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+      display: none;
+      z-index: 9999;
+      animation: toastIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .toast-success { border-left: 4px solid #10B981; }
+    .toast-error { border-left: 4px solid #EF4444; }
+
+    @keyframes toastIn {
+      from { transform: translateY(15px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    .spinner {
+      display: inline-block;
+      width: 14px;
+      height: 14px;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-radius: 50%;
+      border-top-color: white;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 32px 20px;
+      color: var(--text-muted);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- TOP NAVBAR -->
+  <nav>
+    <div class="brand">
+      <div class="brand-logo-wrap">
+        <i class="fa-solid fa-ring"></i>
+      </div>
+      <div class="brand-text">
+        <h1>PORTAL ADMIN WEDDING PLANNER PRO</h1>
+        <p>Manajemen Lisensi Pembeli & Integrasi Lynk.id</p>
+      </div>
+    </div>
+    <div class="nav-actions">
+      <a href="index.html" class="btn-nav" title="Buka Aplikasi Wedding Planner Customer">
+        <i class="fa-solid fa-arrow-left"></i> Ke Aplikasi Customer
+      </a>
+      <button id="btnLogoutAdmin" class="btn-nav btn-nav-danger" onclick="logoutAdmin()" style="display: none;">
+        <i class="fa-solid fa-arrow-right-from-bracket"></i> Keluar
+      </button>
+    </div>
+  </nav>
+
+  <!-- =======================================================================
+       VIEW 1: LOGIN ADMIN
+       ======================================================================= -->
+  <div id="viewLogin">
+    <div class="login-card">
+      <div class="login-icon-wrap">
+        <i class="fa-solid fa-shield-halved"></i>
+      </div>
+      <h2 class="login-title">Autentikasi Admin</h2>
+      <p class="login-desc">
+        Masukkan Password / PIN Admin Anda untuk mengakses database pembeli & manajemen lisensi Lynk.id.
+      </p>
+
+      <form onsubmit="event.preventDefault(); prosesLoginAdmin();">
+        <div class="form-group">
+          <label for="adminPassInput" class="form-label">Password / PIN Admin</label>
+          <div class="input-wrap">
+            <input 
+              type="password" 
+              id="adminPassInput" 
+              class="input-field" 
+              placeholder="Ketik password admin..." 
+              required 
+              autofocus
+            >
+            <button type="button" class="btn-eye" onclick="togglePasswordVisibility()" title="Tampilkan / Sembunyikan Password">
+              <i class="fa-regular fa-eye" id="eyeIcon"></i>
+            </button>
+          </div>
+        </div>
+
+        <button type="submit" id="btnLoginSubmit" class="btn-primary">
+          <span id="loginBtnIcon"><i class="fa-solid fa-lock-open"></i></span>
+          <span id="loginBtnText">Masuk ke Dashboard Admin</span>
+        </button>
+      </form>
+
+      <div id="loginAlert" class="alert-error"></div>
+
+      <div style="margin-top: 22px; font-size: 11.5px; color: #64748B; line-height: 1.5;">
+        💡 Password default: <code>1234</code> atau <code>nikah2026</code> (Bisa diubah di menu Pengaturan / Netlify ENV: <code>ADMIN_PASSWORD</code>).
+      </div>
+    </div>
+  </div>
+
+  <!-- =======================================================================
+       VIEW 2: DASHBOARD ADMIN
+       ======================================================================= -->
+  <div id="viewDashboard" class="container">
+    <!-- Metrics Row -->
+    <div class="metrics-grid">
+      <div class="metric-card metric-rose">
+        <div class="metric-icon">
+          <i class="fa-solid fa-users"></i>
+        </div>
+        <div class="metric-info">
+          <h4>Total Pembeli Terdaftar</h4>
+          <div id="metricTotalBuyers" class="metric-value">0</div>
+        </div>
+      </div>
+
+      <div class="metric-card metric-green">
+        <div class="metric-icon">
+          <i class="fa-solid fa-bolt"></i>
+        </div>
+        <div class="metric-info">
+          <h4>Status Webhook Lynk.id</h4>
+          <div style="font-size: 14px; font-weight: 800; color: #34D399; margin-top: 4px;">Aktif & Siap Terima</div>
+        </div>
+      </div>
+
+      <div class="metric-card metric-purple">
+        <div class="metric-icon">
+          <i class="fa-solid fa-link"></i>
+        </div>
+        <div class="metric-info">
+          <h4>Toko Lynk.id</h4>
+          <a id="metricStoreLink" href="https://lynk.id" target="_blank" style="font-size: 13px; font-weight: 700; color: #A78BFA; text-decoration: none; display: flex; align-items: center; gap: 4px; margin-top: 4px;">
+            <span>lynk.id/toko</span> <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
+          </a>
+        </div>
+      </div>
+
+      <div class="metric-card metric-gold">
+        <div class="metric-icon">
+          <i class="fa-solid fa-shield-check"></i>
+        </div>
+        <div class="metric-info">
+          <h4>Mode Validasi Akses</h4>
+          <div id="metricAccessMode" style="font-size: 13px; font-weight: 800; color: #FBBF24; margin-top: 4px;">Whitelist Email</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Card 1: Tambah Pembeli Manual -->
+    <div class="card">
+      <div class="card-header">
+        <h3 class="card-title"><i class="fa-solid fa-user-plus text-emerald-400"></i> Berikan Akses Lisensi Baru (Manual)</h3>
+        <span style="font-size: 12px; color: var(--text-muted);">
+          Gunakan jika pembeli transfer langsung via bank, QRIS, atau WhatsApp
+        </span>
+      </div>
+
+      <form id="addBuyerForm" onsubmit="event.preventDefault(); prosesTambahPembeli();">
+        <div class="add-buyer-grid">
+          <div class="form-group" style="margin-bottom: 0;">
+            <label class="form-label">Alamat Email Pembeli *</label>
+            <input type="email" id="newEmail" class="input-field" placeholder="contoh@gmail.com" required>
+          </div>
+
+          <div class="form-group" style="margin-bottom: 0;">
+            <label class="form-label">Nama Pembeli</label>
+            <input type="text" id="newName" class="input-field" placeholder="Nama Lengkap">
+          </div>
+
+          <div class="form-group" style="margin-bottom: 0;">
+            <label class="form-label">Sumber / Keterangan</label>
+            <input type="text" id="newNotes" class="input-field" placeholder="Contoh: Transfer BCA / WA">
+          </div>
+
+          <button type="submit" id="btnAddBuyer" class="btn-add">
+            <span id="addIcon"><i class="fa-solid fa-plus"></i></span>
+            <span>Beri Akses</span>
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Card 2: Bulk Import Email Pembeli -->
+    <div class="card">
+      <div class="card-header">
+        <h3 class="card-title"><i class="fa-solid fa-file-import text-blue-400"></i> Bulk Import Email Pembeli</h3>
+        <span style="font-size: 12px; color: var(--text-muted);">
+          Copy-paste daftar email dari export laporan penjualan Lynk.id
+        </span>
+      </div>
+      <div>
+        <textarea id="bulkEmailInput" rows="3" class="input-field" placeholder="Paste daftar email pembeli sekaligus (pisahkan dengan koma, spasi, atau baris baru)..."></textarea>
+        <div style="display: flex; justify-content: flex-end; margin-top: 10px;">
+          <button type="button" onclick="prosesBulkImport()" class="btn-nav" style="background: rgba(56, 189, 248, 0.15); border-color: rgba(56, 189, 248, 0.4); color: #38BDF8;">
+            <i class="fa-solid fa-upload mr-1"></i> Import Seluruh Email
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Card 3: Daftar Pembeli & Lisensi Aktif -->
+    <div class="card">
+      <div class="card-header">
+        <h3 class="card-title"><i class="fa-solid fa-address-book text-rose-400"></i> Daftar Pembeli & Lisensi Aktif</h3>
+        <div style="display: flex; gap: 8px;">
+          <button type="button" class="btn-nav" onclick="exportBuyersCsv()" title="Export CSV">
+            <i class="fa-solid fa-file-csv"></i> Export CSV
+          </button>
+          <button type="button" class="btn-nav" onclick="muatDataPembeli()" title="Muat Ulang Data">
+            <i class="fa-solid fa-rotate-right"></i> Refresh
+          </button>
+        </div>
+      </div>
+
+      <div class="table-toolbar">
+        <div class="search-wrap">
+          <i class="fa-solid fa-magnifying-glass search-icon"></i>
+          <input type="text" id="searchInput" class="search-input" placeholder="Cari email atau nama pembeli..." oninput="filterTabelPembeli()">
+        </div>
+        <div style="font-size: 12px; color: var(--text-muted);">
+          Menampilkan <strong id="buyerCountDisplay" style="color: #fff;">0</strong> pembeli terdaftar
+        </div>
+      </div>
+
+      <div class="table-responsive">
+        <table>
+          <thead>
+            <tr>
+              <th style="width: 50px;">No</th>
+              <th>Email Pembeli</th>
+              <th>Nama</th>
+              <th>Order ID / Sumber</th>
+              <th>Tanggal Ditambahkan</th>
+              <th>Status</th>
+              <th style="text-align: right;">Aksi</th>
+            </tr>
+          </thead>
+          <tbody id="buyersTableBody">
+            <tr>
+              <td colspan="7" class="empty-state">Memuat data pembeli...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Card 4: Integrasi Webhook Lynk.id -->
+    <div class="card">
+      <div class="card-header">
+        <h3 class="card-title"><i class="fa-solid fa-satellite-dish text-amber-400"></i> Integrasi Otomatis Webhook Lynk.id</h3>
+        <span style="font-size: 12px; color: var(--text-muted);">
+          Saat ada yang membeli di Lynk.id, email otomatis aktif tanpa perlu input manual!
+        </span>
+      </div>
+
+      <div style="space-y: 14px;">
+        <p style="font-size: 13px; color: var(--text-muted); line-height: 1.6; margin-bottom: 12px;">
+          Salin URL webhook di bawah ini dan tempelkan di menu <strong>Integrasi &rarr; Webhook</strong> pada dashboard toko Lynk.id Anda:
+        </p>
+
+        <div class="code-box">
+          <span id="webhookUrlText">https://wedding-planner.netlify.app/.netlify/functions/lynk-webhook</span>
+          <button type="button" onclick="copyWebhookUrl()" class="btn-nav" style="padding: 4px 12px; font-size: 11px;">
+            <i class="fa-regular fa-copy mr-1"></i> Salin URL
+          </button>
+        </div>
+
+        <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 14px; margin-top: 14px; font-size: 12px; color: #CBD5E1; line-height: 1.6;">
+          <strong>Langkah Setup di Lynk.id:</strong><br>
+          1. Buka <em>Dashboard Lynk.id &rarr; Settings &rarr; Webhooks</em>.<br>
+          2. Klik <em>Tambah Webhook Baru</em>, masukkan URL di atas.<br>
+          3. Pilih event trigger: <code>Order Selesai / Payment Success</code>.<br>
+          4. Simpan. Kini setiap kali ada yang beli, pembeli langsung bisa buka aplikasi cukup dengan email pembayaran mereka!
+        </div>
+      </div>
+    </div>
+
+    <!-- Card 5: Ganti Password Admin & Pengaturan Toko -->
+    <div class="card" style="border-color: rgba(244, 63, 94, 0.35); background: linear-gradient(180deg, rgba(30, 41, 59, 0.7) 0%, rgba(17, 24, 39, 0.95) 100%);">
+      <div class="card-header">
+        <h3 class="card-title"><i class="fa-solid fa-key text-rose-400"></i> Ganti Password / PIN Admin</h3>
+        <span style="font-size: 12px; color: var(--text-muted);">
+          Perbarui PIN masuk portal admin Anda
+        </span>
+      </div>
+
+      <form id="changePasswordForm" onsubmit="event.preventDefault(); prosesGantiPassword();">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)) auto; gap: 14px; align-items: flex-end;">
+          <div class="form-group" style="margin-bottom: 0;">
+            <label class="form-label">Password Lama *</label>
+            <div class="input-wrap">
+              <input type="password" id="oldPassInput" class="input-field" placeholder="Password lama..." required>
+              <button type="button" class="btn-eye" onclick="togglePassField('oldPassInput')"><i class="fa-regular fa-eye"></i></button>
+            </div>
+          </div>
+
+          <div class="form-group" style="margin-bottom: 0;">
+            <label class="form-label">Password Baru (min 4 karakter) *</label>
+            <div class="input-wrap">
+              <input type="password" id="newPassInput" class="input-field" placeholder="Password baru..." minlength="4" required>
+              <button type="button" class="btn-eye" onclick="togglePassField('newPassInput')"><i class="fa-regular fa-eye"></i></button>
+            </div>
+          </div>
+
+          <div class="form-group" style="margin-bottom: 0;">
+            <label class="form-label">Ulangi Password Baru *</label>
+            <div class="input-wrap">
+              <input type="password" id="confirmPassInput" class="input-field" placeholder="Ulangi password..." minlength="4" required>
+              <button type="button" class="btn-eye" onclick="togglePassField('confirmPassInput')"><i class="fa-regular fa-eye"></i></button>
+            </div>
+          </div>
+
+          <button type="submit" id="btnChangePassSubmit" class="btn-primary" style="height: 44px; padding: 0 22px; width: auto; white-space: nowrap;">
+            <span><i class="fa-solid fa-floppy-disk"></i></span>
+            <span>Simpan Password</span>
+          </button>
+        </div>
+      </form>
+
+      <div id="changePassAlert" class="alert-error" style="margin-top: 14px;"></div>
+    </div>
+
+    <!-- Card 6: Kontrol Masa Uji Coba Demo 2 Menit & Anti-Abuse -->
+    <div class="card">
+      <div class="card-header">
+        <h3 class="card-title"><i class="fa-solid fa-stopwatch text-amber-400"></i> Kontrol Masa Uji Coba Demo (2 Menit)</h3>
+        <span style="font-size: 12px; color: var(--text-muted);">
+          Pengaturan & tool uji coba proteksi demo pembeli
+        </span>
+      </div>
+      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px;">
+        <p style="font-size: 13px; color: var(--text-muted); line-height: 1.5; max-width: 650px;">
+          Calon pembeli dibatasi mencoba demo selama <strong>2 Menit (120 Detik)</strong> dan dilindungi proteksi sidik jari perangkat + IP (Anti-Abuse). Tombol di samping berguna saat Anda sebagai penjual ingin mereset masa demo pada browser ini untuk menguji coba kembali alur pembeli.
+        </p>
+        <button type="button" onclick="resetDemoForTesting()" class="btn-nav" style="background: rgba(245, 158, 11, 0.15); border: 1px solid rgba(245, 158, 11, 0.4); color: #FCD34D; height: 42px; padding: 0 18px; font-weight: 600;">
+          <i class="fa-solid fa-rotate-left mr-1.5"></i> Reset Demo di Browser Ini
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div id="toast" class="toast"></div>
+
+  <!-- SCRIPT LOGIC -->
+  <script>
+    const STORAGE_KEY_ADMIN_TOKEN = 'wp_admin_token';
+    const STORAGE_KEY_WHITELIST = 'wp_authorized_emails';
+    const STORAGE_KEY_SETTINGS = 'wp_app_settings';
+    const STORAGE_KEY_PASS = 'wp_admin_local_password';
+
+    let allBuyersData = [];
+
+    // Helper: Toast
+    function showToast(message, type = 'success') {
+      const toast = document.getElementById('toast');
+      toast.textContent = message;
+      toast.className = 'toast toast-' + type;
+      toast.style.display = 'block';
+      setTimeout(() => {
+        toast.style.display = 'none';
+      }, 3500);
+    }
+
+    function togglePasswordVisibility() {
+      const input = document.getElementById('adminPassInput');
+      const icon = document.getElementById('eyeIcon');
+      if (input.type === 'password') {
+        input.type = 'text';
+        icon.className = 'fa-regular fa-eye-slash';
+      } else {
+        input.type = 'password';
+        icon.className = 'fa-regular fa-eye';
+      }
+    }
+
+    function togglePassField(fieldId) {
+      const input = document.getElementById(fieldId);
+      input.type = input.type === 'password' ? 'text' : 'password';
+    }
+
+    function getSavedAdminToken() {
+      return sessionStorage.getItem(STORAGE_KEY_ADMIN_TOKEN) || localStorage.getItem(STORAGE_KEY_ADMIN_TOKEN) || '';
+    }
+
+    function setSavedAdminToken(token) {
+      sessionStorage.setItem(STORAGE_KEY_ADMIN_TOKEN, token);
+    }
+
+    function clearSavedAdminToken() {
+      sessionStorage.removeItem(STORAGE_KEY_ADMIN_TOKEN);
+      localStorage.removeItem(STORAGE_KEY_ADMIN_TOKEN);
+    }
+
+    // Auto-detect dynamic Webhook URL based on current host
+    function updateWebhookUrlDisplay() {
+      const host = window.location.origin;
+      const el = document.getElementById('webhookUrlText');
+      if (el) {
+        el.textContent = `${host}/.netlify/functions/lynk-webhook`;
+      }
+    }
+
+    // LOGIN PROCESS
+    async function prosesLoginAdmin() {
+      const passInput = document.getElementById('adminPassInput');
+      const alertBox = document.getElementById('loginAlert');
+      const btn = document.getElementById('btnLoginSubmit');
+      const btnIcon = document.getElementById('loginBtnIcon');
+      const btnText = document.getElementById('loginBtnText');
+
+      const password = (passInput.value || '').trim();
+      if (!password) return;
+
+      alertBox.style.display = 'none';
+      btn.disabled = true;
+      btnIcon.innerHTML = '<span class="spinner"></span>';
+      btnText.textContent = 'Memverifikasi...';
+
+      const isLocal = window.location.protocol === 'file:' || window.location.hostname === 'localhost';
+
+      try {
+        let success = false;
+
+        if (isLocal) {
+          const activeLocalPass = localStorage.getItem(STORAGE_KEY_PASS) || '1234';
+          if (password === activeLocalPass || password === '1234' || password === 'nikah2026' || password === 'admin12345') {
+            success = true;
+          }
+        } else {
+          const res = await fetch('/.netlify/functions/admin-buyers', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'x-admin-key': password
+            },
+            body: JSON.stringify({ action: 'login' })
+          });
+          const data = await res.json().catch(() => ({}));
+          if (res.ok && data.success) {
+            success = true;
+          }
+        }
+
+        if (success) {
+          setSavedAdminToken(password);
+          tampilkanDashboard();
+          muatDataPembeli();
+          showToast('Berhasil masuk ke Dashboard Admin!');
+        } else {
+          alertBox.textContent = 'Password / PIN Admin salah. Silakan coba lagi.';
+          alertBox.style.display = 'block';
+          passInput.focus();
+        }
+      } catch (err) {
+        if (isLocal) {
+          setSavedAdminToken(password);
+          tampilkanDashboard();
+          muatDataPembeli();
+        } else {
+          alertBox.textContent = 'Gagal menghubungi server: ' + err.message;
+          alertBox.style.display = 'block';
+        }
+      } finally {
+        btn.disabled = false;
+        btnIcon.innerHTML = '<i class="fa-solid fa-lock-open"></i>';
+        btnText.textContent = 'Masuk ke Dashboard Admin';
+      }
+    }
+
+    function logoutAdmin() {
+      if (confirm('Keluar dari Portal Admin?')) {
+        clearSavedAdminToken();
+        location.reload();
+      }
+    }
+
+    function tampilkanDashboard() {
+      document.getElementById('viewLogin').style.display = 'none';
+      document.getElementById('viewDashboard').style.display = 'block';
+      document.getElementById('btnLogoutAdmin').style.display = 'inline-flex';
+      updateWebhookUrlDisplay();
+    }
+
+    // LOAD BUYERS DATA
+    async function muatDataPembeli() {
+      const token = getSavedAdminToken();
+      const tbody = document.getElementById('buyersTableBody');
+      tbody.innerHTML = '<tr><td colspan="7" class="empty-state"><span class="spinner"></span> Mengambil data terbaru...</td></tr>';
+
+      const isLocal = window.location.protocol === 'file:' || window.location.hostname === 'localhost';
+
+      try {
+        let buyers = [];
+
+        if (isLocal) {
+          const storedWhitelist = localStorage.getItem(STORAGE_KEY_WHITELIST);
+          let rawList = [];
+          if (storedWhitelist) {
+            try { rawList = JSON.parse(storedWhitelist); } catch(e) { rawList = []; }
+          }
+          if (!rawList.includes('olapoal.artgallery@gmail.com')) {
+            rawList.unshift('olapoal.artgallery@gmail.com');
+            localStorage.setItem(STORAGE_KEY_WHITELIST, JSON.stringify(rawList));
+          }
+          buyers = rawList.map((item, idx) => {
+            if (typeof item === 'string') {
+              const name = item === 'olapoal.artgallery@gmail.com' ? 'Ola Poal (Owner VIP)' : (item === 'angga.chintya@gmail.com' ? 'Anggah & Chintya' : 'Pembeli VIP');
+              const orderId = item === 'olapoal.artgallery@gmail.com' ? 'OWNER-LIFETIME' : ('LOCAL-' + (idx + 1));
+              return { email: item, name: name, order_id: orderId, created_at: new Date().toISOString() };
+            }
+            return item;
+          });
+        } else {
+          const res = await fetch('/.netlify/functions/admin-buyers', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'x-admin-key': token
+            },
+            body: JSON.stringify({ action: 'list' })
+          });
+          const data = await res.json();
+          if (res.ok && data.buyers) {
+            buyers = data.buyers;
+          }
+        }
+
+        allBuyersData = buyers;
+        renderTabelPembeli(allBuyersData);
+        document.getElementById('metricTotalBuyers').textContent = allBuyersData.length;
+
+      } catch (err) {
+        tbody.innerHTML = `<tr><td colspan="7" class="empty-state" style="color: #FCA5A5;">Gagal memuat data: ${err.message}</td></tr>`;
+      }
+    }
+
+    function renderTabelPembeli(list) {
+      const tbody = document.getElementById('buyersTableBody');
+      const countEl = document.getElementById('buyerCountDisplay');
+      countEl.textContent = list.length;
+
+      if (!list || list.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" class="empty-state">Belum ada pembeli terdaftar. Tambahkan manual di atas.</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = list.map((b, idx) => {
+        const dateStr = b.created_at ? new Date(b.created_at).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : '-';
+        return `
+          <tr>
+            <td style="color: var(--text-muted); font-mono; font-size: 11px;">${idx + 1}</td>
+            <td style="font-weight: 700; color: #FFFFFF;">
+              ${b.email}
+            </td>
+            <td>${b.name || '-'}</td>
+            <td style="font-family: monospace; font-size: 12px; color: #38BDF8;">${b.order_id || b.notes || 'Manual'}</td>
+            <td style="font-size: 12px; color: var(--text-muted);">${dateStr}</td>
+            <td>
+              <span class="badge-status badge-status-active"><i class="fa-solid fa-check text-[10px]"></i> Aktif</span>
+            </td>
+            <td style="text-align: right;">
+              <button type="button" class="btn-action-icon" onclick="kirimKonfirmasiWa('${b.email}', '${b.name || ''}')" title="Kirim WA Konfirmasi">
+                <i class="fa-brands fa-whatsapp text-emerald-400"></i>
+              </button>
+              <button type="button" class="btn-action-icon btn-action-delete" onclick="cabutAkses('${b.email}')" title="Cabut Lisensi">
+                <i class="fa-regular fa-trash-can"></i>
+              </button>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function filterTabelPembeli() {
+      const q = (document.getElementById('searchInput').value || '').toLowerCase().trim();
+      if (!q) {
+        renderTabelPembeli(allBuyersData);
+        return;
+      }
+      const filtered = allBuyersData.filter(b => 
+        (b.email && b.email.toLowerCase().includes(q)) ||
+        (b.name && b.name.toLowerCase().includes(q)) ||
+        (b.order_id && b.order_id.toLowerCase().includes(q))
+      );
+      renderTabelPembeli(filtered);
+    }
+
+    // TAMBAH PEMBELI MANUAL
+    async function prosesTambahPembeli() {
+      const email = document.getElementById('newEmail').value.trim();
+      const name = document.getElementById('newName').value.trim();
+      const notes = document.getElementById('newNotes').value.trim();
+      const token = getSavedAdminToken();
+      const isLocal = window.location.protocol === 'file:' || window.location.hostname === 'localhost';
+
+      if (!email) return;
+
+      try {
+        if (isLocal) {
+          const raw = localStorage.getItem(STORAGE_KEY_WHITELIST);
+          let list = raw ? JSON.parse(raw) : [];
+          if (!list.includes(email.toLowerCase())) {
+            list.push(email.toLowerCase());
+            localStorage.setItem(STORAGE_KEY_WHITELIST, JSON.stringify(list));
+          }
+          allBuyersData.unshift({
+            email: email.toLowerCase(),
+            name: name || 'Manual Add',
+            order_id: notes || 'MANUAL-VIP',
+            created_at: new Date().toISOString()
+          });
+          renderTabelPembeli(allBuyersData);
+          document.getElementById('metricTotalBuyers').textContent = allBuyersData.length;
+          showToast(`Akses berhasil diberikan untuk ${email}!`);
+        } else {
+          const res = await fetch('/.netlify/functions/admin-buyers', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'x-admin-key': token },
+            body: JSON.stringify({ action: 'add', email, name, notes })
+          });
+          const data = await res.json();
+          if (res.ok && data.success) {
+            muatDataPembeli();
+            showToast(`Akses berhasil diberikan untuk ${email}!`);
+          } else {
+            alert('Gagal: ' + (data.error || 'Server error'));
+          }
+        }
+
+        document.getElementById('addBuyerForm').reset();
+      } catch (err) {
+        alert('Terjadi kesalahan: ' + err.message);
+      }
+    }
+
+    // BULK IMPORT
+    async function prosesBulkImport() {
+      const rawText = document.getElementById('bulkEmailInput').value;
+      if (!rawText.trim()) {
+        alert('Paste daftar email terlebih dahulu!');
+        return;
+      }
+
+      const emails = rawText.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g) || [];
+      if (emails.length === 0) {
+        alert('Tidak ditemukan format email yang valid pada teks yang Anda masukkan!');
+        return;
+      }
+
+      if (!confirm(`Import ${emails.length} email pembeli ke database?`)) return;
+
+      const isLocal = window.location.protocol === 'file:' || window.location.hostname === 'localhost';
+      const token = getSavedAdminToken();
+
+      try {
+        if (isLocal) {
+          const raw = localStorage.getItem(STORAGE_KEY_WHITELIST);
+          let list = raw ? JSON.parse(raw) : [];
+          emails.forEach(e => {
+            const el = e.toLowerCase();
+            if (!list.includes(el)) list.push(el);
+          });
+          localStorage.setItem(STORAGE_KEY_WHITELIST, JSON.stringify(list));
+          muatDataPembeli();
+          showToast(`Berhasil mengimpor ${emails.length} email pembeli!`);
+        } else {
+          const res = await fetch('/.netlify/functions/admin-buyers', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'x-admin-key': token },
+            body: JSON.stringify({ action: 'bulk_add', emails })
+          });
+          const data = await res.json();
+          if (res.ok && data.success) {
+            muatDataPembeli();
+            showToast(`Berhasil mengimpor ${data.added || emails.length} email pembeli!`);
+          }
+        }
+        document.getElementById('bulkEmailInput').value = '';
+      } catch (err) {
+        alert('Gagal import: ' + err.message);
+      }
+    }
+
+    // CABUT AKSES
+    async function cabutAkses(email) {
+      if (!confirm(`Cabut akses lisensi untuk email '${email}'? Pembeli tidak akan bisa lagi mengakses aplikasi.`)) return;
+
+      const isLocal = window.location.protocol === 'file:' || window.location.hostname === 'localhost';
+      const token = getSavedAdminToken();
+
+      try {
+        if (isLocal) {
+          const raw = localStorage.getItem(STORAGE_KEY_WHITELIST);
+          let list = raw ? JSON.parse(raw) : [];
+          list = list.filter(e => (typeof e === 'string' ? e : e.email).toLowerCase() !== email.toLowerCase());
+          localStorage.setItem(STORAGE_KEY_WHITELIST, JSON.stringify(list));
+          allBuyersData = allBuyersData.filter(b => b.email.toLowerCase() !== email.toLowerCase());
+          renderTabelPembeli(allBuyersData);
+          document.getElementById('metricTotalBuyers').textContent = allBuyersData.length;
+          showToast(`Akses '${email}' berhasil dicabut.`);
+        } else {
+          const res = await fetch('/.netlify/functions/admin-buyers', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'x-admin-key': token },
+            body: JSON.stringify({ action: 'revoke', email })
+          });
+          const data = await res.json();
+          if (res.ok && data.success) {
+            muatDataPembeli();
+            showToast(`Akses '${email}' berhasil dicabut.`);
+          }
+        }
+      } catch (err) {
+        alert('Gagal mencabut akses: ' + err.message);
+      }
+    }
+
+    // GANTI PASSWORD
+    async function prosesGantiPassword() {
+      const oldPass = document.getElementById('oldPassInput').value;
+      const newPass = document.getElementById('newPassInput').value;
+      const confirmPass = document.getElementById('confirmPassInput').value;
+      const alertBox = document.getElementById('changePassAlert');
+
+      alertBox.style.display = 'none';
+
+      if (newPass !== confirmPass) {
+        alertBox.textContent = 'Konfirmasi password baru tidak cocok!';
+        alertBox.style.display = 'block';
+        return;
+      }
+
+      const isLocal = window.location.protocol === 'file:' || window.location.hostname === 'localhost';
+      const token = getSavedAdminToken();
+
+      try {
+        if (isLocal) {
+          const activeLocalPass = localStorage.getItem(STORAGE_KEY_PASS) || '1234';
+          if (oldPass !== activeLocalPass && oldPass !== '1234' && oldPass !== 'nikah2026' && oldPass !== 'admin12345') {
+            alertBox.textContent = 'Password lama salah!';
+            alertBox.style.display = 'block';
+            return;
+          }
+          localStorage.setItem(STORAGE_KEY_PASS, newPass);
+          setSavedAdminToken(newPass);
+          showToast('Password Admin berhasil diperbarui!');
+          document.getElementById('changePasswordForm').reset();
+        } else {
+          const res = await fetch('/.netlify/functions/admin-buyers', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'x-admin-key': token },
+            body: JSON.stringify({ action: 'change_password', old_password: oldPass, new_password: newPass })
+          });
+          const data = await res.json();
+          if (res.ok && data.success) {
+            setSavedAdminToken(newPass);
+            showToast('Password Admin berhasil diperbarui!');
+            document.getElementById('changePasswordForm').reset();
+          } else {
+            alertBox.textContent = data.error || 'Gagal mengubah password.';
+            alertBox.style.display = 'block';
+          }
+        }
+      } catch (err) {
+        alertBox.textContent = 'Terjadi kesalahan: ' + err.message;
+        alertBox.style.display = 'block';
+      }
+    }
+
+    // EXPORT CSV
+    function exportBuyersCsv() {
+      if (!allBuyersData || allBuyersData.length === 0) {
+        alert('Tidak ada data pembeli untuk diekspor!');
+        return;
+      }
+      let csv = 'Email,Nama,OrderID/Sumber,Tanggal\n';
+      allBuyersData.forEach(b => {
+        csv += `"${b.email}","${b.name || ''}","${b.order_id || b.notes || ''}","${b.created_at || ''}"\n`;
+      });
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `pembeli_wedding_planner_${new Date().toISOString().slice(0, 10)}.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function copyWebhookUrl() {
+      const text = document.getElementById('webhookUrlText').textContent;
+      navigator.clipboard.writeText(text).then(() => {
+        showToast('URL Webhook berhasil disalin!');
+      });
+    }
+
+    function kirimKonfirmasiWa(email, name) {
+      const pesan = encodeURIComponent(`Halo ${name || 'Kak'}! Terima kasih telah membeli Wedding Planner Pro. Akses email ${email} Anda kini sudah aktif dan dapat langsung digunakan di aplikasi.`);
+      window.open(`https://wa.me/?text=${pesan}`, '_blank');
+    }
+
+    function resetDemoForTesting() {
+      localStorage.removeItem('wp_demo_remaining_seconds');
+      localStorage.removeItem('wp_demo_start_time');
+      localStorage.removeItem('wp_demo_expired');
+      localStorage.removeItem('wp_demo_fingerprint');
+      sessionStorage.removeItem('wp_demo_remaining_seconds');
+      sessionStorage.removeItem('wp_demo_start_time');
+      sessionStorage.removeItem('wp_demo_expired');
+      localStorage.setItem('wp_demo_remaining_seconds', '120');
+      try {
+        if (window.indexedDB) {
+          const req = indexedDB.open("wp_security_db", 1);
+          req.onsuccess = function(e) {
+            const db = e.target.result;
+            if (db.objectStoreNames.contains("sec_tokens")) {
+              const tx = db.transaction("sec_tokens", "readwrite");
+              tx.objectStore("sec_tokens").clear();
+            }
+          };
+        }
+      } catch (e) {}
+      showToast("Masa uji coba demo 2 menit berhasil di-reset menjadi 120 detik penuh!");
+    }
+
+    // Auto-check session on load
+    window.addEventListener('DOMContentLoaded', () => {
+      const savedToken = getSavedAdminToken();
+      if (savedToken) {
+        tampilkanDashboard();
+        muatDataPembeli();
+      }
+    });
+  </script>
+</body>
+</html>
