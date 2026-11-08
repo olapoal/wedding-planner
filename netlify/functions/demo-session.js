@@ -49,6 +49,171 @@ exports.handler = async function(event, context) {
             // Netlify Blobs belum aktif atau berjalan secara lokal
         }
 
+        const supabaseUrl = process.env.SUPABASE_URL;
+        const supabaseKey = process.env.SUPABASE_KEY || process.env.SUPABASE_ANON_KEY;
+
+        // JIKA MENGGUNAKAN SUPABASE SEBAGAI BACKEND (Ketika Netlify Blobs tidak aktif atau Supabase dikonfigurasi)
+        if (!store && supabaseUrl && supabaseKey) {
+            const cleanUrl = supabaseUrl.replace(/\/$/, "");
+            const now = new Date().toISOString();
+
+            // Cek sesi yang ada di Supabase berdasarkan fingerprint ATAU IP
+            let supaSession = null;
+            try {
+                const queryFilter = (clientIp && clientIp !== "local-ip" && clientIp !== "127.0.0.1")
+                    ? `or=(fingerprint.eq.${encodeURIComponent(fingerprint)},client_ip.eq.${encodeURIComponent(clientIp)})`
+                    : `fingerprint=eq.${encodeURIComponent(fingerprint)}`;
+
+                const checkRes = await fetch(`${cleanUrl}/rest/v1/wedding_demo_sessions?${queryFilter}&limit=1`, {
+                    headers: {
+                        "apikey": supabaseKey,
+                        "Authorization": `Bearer ${supabaseKey}`
+                    }
+                });
+                if (checkRes.ok) {
+                    const rows = await checkRes.json();
+                    if (rows && rows.length > 0) supaSession = rows[0];
+                }
+            } catch (err) {
+                console.warn("Supabase demo check notice:", err.message);
+            }
+
+            if (action === "start") {
+                if (supaSession) {
+                    const isExp = supaSession.expired || (supaSession.remaining_seconds !== undefined && supaSession.remaining_seconds <= 0);
+                    if (isExp) {
+                        return {
+                            statusCode: 200,
+                            headers: corsHeaders,
+                            body: JSON.stringify({
+                                allowed: false,
+                                expired: true,
+                                remainingSeconds: 0,
+                                message: "Masa uji coba demo 2 menit untuk perangkat atau koneksi internet ini sudah habis. Silakan beli lisensi di Lynk.id!"
+                            })
+                        };
+                    } else {
+                        const rem = supaSession.remaining_seconds !== undefined ? supaSession.remaining_seconds : DEMO_DURATION;
+                        return {
+                            statusCode: 200,
+                            headers: corsHeaders,
+                            body: JSON.stringify({
+                                allowed: true,
+                                expired: false,
+                                remainingSeconds: rem
+                            })
+                        };
+                    }
+                }
+
+                // Buat sesi baru di Supabase
+                const newRem = reqRemaining !== null ? reqRemaining : DEMO_DURATION;
+                try {
+                    await fetch(`${cleanUrl}/rest/v1/wedding_demo_sessions`, {
+                        method: "POST",
+                        headers: {
+                            "apikey": supabaseKey,
+                            "Authorization": `Bearer ${supabaseKey}`,
+                            "Content-Type": "application/json",
+                            "Prefer": "resolution=merge-duplicates"
+                        },
+                        body: JSON.stringify({
+                            fingerprint: fingerprint,
+                            client_ip: clientIp,
+                            remaining_seconds: newRem,
+                            expired: false,
+                            started_at: now,
+                            last_active_at: now
+                        })
+                    });
+                } catch (e) {}
+
+                return {
+                    statusCode: 200,
+                    headers: corsHeaders,
+                    body: JSON.stringify({
+                        allowed: true,
+                        expired: false,
+                        remainingSeconds: newRem
+                    })
+                };
+            }
+
+            if (action === "pause" || action === "update") {
+                const rem = reqRemaining !== null ? Math.max(0, reqRemaining) : 0;
+                try {
+                    await fetch(`${cleanUrl}/rest/v1/wedding_demo_sessions?fingerprint=eq.${encodeURIComponent(fingerprint)}`, {
+                        method: "PATCH",
+                        headers: {
+                            "apikey": supabaseKey,
+                            "Authorization": `Bearer ${supabaseKey}`,
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify({
+                            remaining_seconds: rem,
+                            expired: rem <= 0,
+                            last_active_at: now
+                        })
+                    });
+                } catch (e) {}
+
+                return {
+                    statusCode: 200,
+                    headers: corsHeaders,
+                    body: JSON.stringify({ success: true, remainingSeconds: rem })
+                };
+            }
+
+            if (action === "expire") {
+                try {
+                    await fetch(`${cleanUrl}/rest/v1/wedding_demo_sessions?fingerprint=eq.${encodeURIComponent(fingerprint)}`, {
+                        method: "PATCH",
+                        headers: {
+                            "apikey": supabaseKey,
+                            "Authorization": `Bearer ${supabaseKey}`,
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify({
+                            remaining_seconds: 0,
+                            expired: true,
+                            last_active_at: now
+                        })
+                    });
+                } catch (e) {}
+
+                return {
+                    statusCode: 200,
+                    headers: corsHeaders,
+                    body: JSON.stringify({ success: true, expired: true })
+                };
+            }
+
+            if (action === "check") {
+                if (supaSession) {
+                    const isExp = supaSession.expired || (supaSession.remaining_seconds !== undefined && supaSession.remaining_seconds <= 0);
+                    const rem = supaSession.remaining_seconds !== undefined ? supaSession.remaining_seconds : 0;
+                    return {
+                        statusCode: 200,
+                        headers: corsHeaders,
+                        body: JSON.stringify({
+                            allowed: !isExp,
+                            expired: isExp,
+                            remainingSeconds: rem
+                        })
+                    };
+                }
+                return {
+                    statusCode: 200,
+                    headers: corsHeaders,
+                    body: JSON.stringify({
+                        allowed: true,
+                        expired: false,
+                        remainingSeconds: DEMO_DURATION
+                    })
+                };
+            }
+        }
+
         if (store) {
             const now = Date.now();
             let existingFp = null;

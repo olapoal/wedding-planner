@@ -78,6 +78,38 @@ exports.handler = async function(event, context) {
                 }
             }
 
+            // Sync/Read dari Supabase jika dikonfigurasi
+            const supabaseUrl = process.env.SUPABASE_URL;
+            const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_KEY || process.env.SUPABASE_ANON_KEY;
+            if (supabaseUrl && supabaseKey) {
+                try {
+                    const cleanUrl = supabaseUrl.replace(/\/$/, "");
+                    const res = await fetch(`${cleanUrl}/rest/v1/wedding_buyers?select=*&order=created_at.desc`, {
+                        headers: {
+                            "apikey": supabaseKey,
+                            "Authorization": `Bearer ${supabaseKey}`
+                        }
+                    });
+                    if (res.ok) {
+                        const supaRows = await res.json();
+                        for (const sb of (supaRows || [])) {
+                            const existingIndex = buyers.findIndex(b => (b.email || "").toLowerCase() === (sb.email || "").toLowerCase());
+                            if (existingIndex === -1) {
+                                buyers.push({
+                                    email: sb.email,
+                                    name: sb.name || sb.email,
+                                    order_id: sb.order_id || "-",
+                                    phone: sb.phone || "-",
+                                    created_at: sb.created_at
+                                });
+                            }
+                        }
+                    }
+                } catch (supaErr) {
+                    console.warn("Supabase admin list notice:", supaErr.message);
+                }
+            }
+
             // Pastikan email owner selalu ada di database lisensi pembeli
             if (!buyers.some(b => b.email === "olapoal.artgallery@gmail.com")) {
                 const ownerData = {
@@ -128,6 +160,32 @@ exports.handler = async function(event, context) {
                 await buyersStore.setJSON(email, buyerData);
             }
 
+            // Sync ke Supabase jika aktif
+            const supabaseUrl = process.env.SUPABASE_URL;
+            const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_KEY || process.env.SUPABASE_ANON_KEY;
+            if (supabaseUrl && supabaseKey) {
+                try {
+                    const cleanUrl = supabaseUrl.replace(/\/$/, "");
+                    await fetch(`${cleanUrl}/rest/v1/wedding_buyers`, {
+                        method: "POST",
+                        headers: {
+                            "apikey": supabaseKey,
+                            "Authorization": `Bearer ${supabaseKey}`,
+                            "Content-Type": "application/json",
+                            "Prefer": "resolution=merge-duplicates"
+                        },
+                        body: JSON.stringify({
+                            email: email,
+                            name: name,
+                            order_id: orderId,
+                            status: "active"
+                        })
+                    });
+                } catch (e) {
+                    console.warn("Supabase add error:", e.message);
+                }
+            }
+
             return {
                 statusCode: 200,
                 headers: corsHeaders,
@@ -152,6 +210,24 @@ exports.handler = async function(event, context) {
 
             if (buyersStore) {
                 await buyersStore.delete(email);
+            }
+
+            // Hapus juga dari Supabase jika aktif
+            const supabaseUrl = process.env.SUPABASE_URL;
+            const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_KEY || process.env.SUPABASE_ANON_KEY;
+            if (supabaseUrl && supabaseKey) {
+                try {
+                    const cleanUrl = supabaseUrl.replace(/\/$/, "");
+                    await fetch(`${cleanUrl}/rest/v1/wedding_buyers?email=eq.${encodeURIComponent(email)}`, {
+                        method: "DELETE",
+                        headers: {
+                            "apikey": supabaseKey,
+                            "Authorization": `Bearer ${supabaseKey}`
+                        }
+                    });
+                } catch (e) {
+                    console.warn("Supabase delete error:", e.message);
+                }
             }
 
             return {
