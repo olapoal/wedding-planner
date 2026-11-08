@@ -133,7 +133,7 @@ INSERT INTO public.wedding_app_settings (key, value)
 VALUES 
     ('store_config', '{
         "sellerStoreName": "Wedding Planner Pro",
-        "lynkidProductUrl": "https://lynk.id/weddingplanner/nikah-impian",
+        "lynkidProductUrl": "https://lynk.id/olapoal",
         "accessMode": "whitelist",
         "masterLicenseCode": "NIKAH2026",
         "adminPin": "1234",

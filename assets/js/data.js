@@ -772,7 +772,7 @@ const DEFAULT_AUTHORIZED_EMAILS = [
 
 const DEFAULT_SETTINGS = {
   sellerStoreName: "Wedding Planner Pro",
-  lynkidProductUrl: "https://lynk.id/weddingplanner/nikah-impian",
+  lynkidProductUrl: "https://lynk.id/olapoal",
   accessMode: "whitelist", // "whitelist", "any_email", "license_key"
   masterLicenseCode: "NIKAH2026",
   adminPin: "1234",
